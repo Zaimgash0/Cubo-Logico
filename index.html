@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cubo Logico</title>
+    <style>
+        /* CSS: Layout e Stile */
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            margin: 0; padding: 0;
+            height: 100vh; width: 100vw;
+            display: flex; justify-content: center; align-items: center; 
+            overflow: hidden; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #scaler-container {
+            transform-origin: center center;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            /* Dimensioni base fisse per il calcolo dello zoom */
+            width: 540px; 
+            display: flex; justify-content: center; align-items: center;
+            position: relative;
+        }
+
+        /* --- MENU INIZIALE --- */
+        #start-menu {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-color: #34495e; border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 2px solid #4e6a85;
+            padding: 40px; width: 100%; max-width: 400px; z-index: 100;
+        }
+        
+        .game-logo {
+            font-size: 40px; font-weight: 900; margin-bottom: 30px;
+            text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 0 5px 0 #2c3e50; text-align: center;
+        }
+        
+        .menu-btn {
+            background: #e67e22; color: white;
+            font-size: 22px; font-weight: bold;
+            padding: 15px 40px; width: 100%;
+            border: none; border-radius: 50px;
+            margin-bottom: 15px; cursor: pointer;
+            box-shadow: 0 5px 0 #d35400; transition: transform 0.1s;
+        }
+        .menu-btn:active { transform: translateY(5px); box-shadow: none; }
+        .menu-btn.secondary { background: #1abc9c; box-shadow: 0 5px 0 #16a085; }
+        .menu-btn.info { background: #3498db; box-shadow: 0 5px 0 #2980b9; }
+
+        /* --- CONTENITORE GIOCO --- */
+        #main-container {
+            display: none; /* Nascosto all'avvio */
+            gap: 15px; padding: 15px;
+            background-color: #34495e; border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 2px solid #4e6a85;
+            flex-direction: column; align-items: center;
+            width: 500px; 
+        }
+
+        /* LAYOUT DESKTOP: Affianca sidebar e gioco */
+        @media (min-width: 850px) {
+            #scaler-container { width: 850px; } /* Larghezza base desktop */
+            #main-container {
+                flex-direction: row; align-items: flex-start;
+                padding: 20px; gap: 20px; width: auto;
+            }
+        }
+
+        #sidebar {
+            display: flex; flex-direction: row; flex-wrap: wrap;
+            justify-content: center; width: 100%; gap: 8px;
+        }
+        
+        @media (min-width: 850px) {
+            #sidebar {
+                flex-direction: column; width: 240px; flex-wrap: nowrap; gap: 12px;
+            }
+        }
+
+        .panel-title {
+            width: 100%; text-align: center; font-size: 24px; font-weight: 800;
+            color: #ecf0f1; margin-bottom: 2px; text-transform: uppercase;
+            letter-spacing: 1px; border-bottom: 4px solid #1abc9c; padding-bottom: 5px;
+        }
+
+        .stat-box {
+            background: #2c3e50; padding: 5px 8px;
+            border-radius: 8px; border-left: 4px solid #1abc9c;
+            min-width: 70px; text-align: center; flex-grow: 1;
+        }
+
+        .stat-label { font-size: 9px; color: #bdc3c7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;}
+        .stat-value { font-size: 18px; font-weight: bold; color: #f1c40f; line-height: 1.1;}
+        .danger-text { color: #e74c3c !important; animation: pulse 1s infinite; }
+
+        #timer-box { border-left-color: #e67e22; }
+        #timer-display { font-family: 'Courier New', monospace; font-size: 22px; }
+
+        #mission-box { 
+            border-left-color: #9b59b6; display: flex; flex-direction: row; 
+            align-items: center; justify-content: center; gap: 8px; 
+            min-width: 110px; padding: 5px 10px;
+        }
+        
+        .mission-icon { width: 22px; height: 22px; border-radius: 4px; border: 2px solid white; flex-shrink: 0; }
+        .mission-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center;}
+        .mission-target { font-size: 16px; font-weight: 900; line-height: 1; white-space: nowrap; }
+        .mission-success { border-left-color: #2ecc71; background-color: #273c2e; }
+        .mission-success .mission-target { color: #2ecc71; }
+
+        .controls { display: flex; gap: 8px; width: 100%; justify-content: center; margin-top: 5px; }
+
+        button {
+            padding: 10px; font-size: 14px; background-color: #576574;
+            color: white; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: bold; flex: 1;
+        }
+        button:active { transform: scale(0.95); background-color: #8395a7; }
+        .btn-music.active { background-color: #1abc9c; }
+
+        #game-area {
+            position: relative; width: 500px; height: 500px; 
+            background-color: #222; border-radius: 12px;
+            border: 4px solid #2c3e50; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+            touch-action: none; margin-top: 5px; 
+            
+            /* MODIFICA: Cursore cambiato in manina (pointer) */
+            cursor: pointer;
+        }
+
+        .cube {
+            width: 46px; height: 46px; border-radius: 8px;
+            position: absolute; display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 20px; color: rgba(255,255,255,0.9);
+            box-sizing: border-box;
+            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                        transform 0.1s, opacity 0.2s;
+            /* FONDAMENTALE: i cubi non bloccano il mouse, così calcoliamo la posizione matematica sulla griglia */
+            pointer-events: none; 
+        }
+        
+        .color-1 { background: #ff6b6b; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .color-2 { background: #48dbfb; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .color-3 { background: #feca57; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .color-4 { background: #1dd1a1; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .color-5 { background: #5f27cd; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+
+        .tnt { background: #2d3436; color: #ff9f43; border: 2px dashed #ff9f43; z-index: 50; }
+        .tnt::after { content: "TNT"; font-weight: 900; font-size: 14px; }
+
+        .preview { filter: brightness(1.4); transform: scale(0.92); border: 3px solid white; z-index: 100;}
+        .tnt-range { filter: sepia(1) hue-rotate(-50deg) saturate(3); transform: scale(0.9); }
+        .imploding { transform: scale(0); opacity: 0; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* MODALI */
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        #modal-overlay.visible { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: #ecf0f1; color: #2c3e50; padding: 20px; width: 320px;
+            border-radius: 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .modal-title { font-size: 22px; font-weight: 900; margin-bottom: 10px; }
+        .modal-text { font-size: 15px; margin-bottom: 20px; line-height: 1.4; }
+        .modal-btn { background: #e67e22; font-size: 16px; padding: 12px; width: 100%; border-radius: 8px; color: white; border: none; font-weight: bold;}
+        .rules-list { text-align: left; padding-left: 15px; font-size: 13px; }
+        .rules-list li { margin-bottom: 6px; }
+
+        /* POPUP LIVELLO */
+        #level-popup {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5);
+            background: rgba(44, 62, 80, 0.95); padding: 20px;
+            border-radius: 20px; border: 4px solid #9b59b6; text-align: center;
+            z-index: 1500; opacity: 0; pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 50px rgba(155, 89, 182, 0.5);
+            display: flex; flex-direction: column; align-items: center; gap: 10px; width: 200px;
+        }
+        #level-popup.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .popup-title { color: #fff; font-size: 16px; text-transform: uppercase; letter-spacing: 2px;}
+        .popup-icon { width: 50px; height: 50px; border-radius: 8px; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin: 5px 0;}
+        .popup-target { color: #f1c40f; font-size: 36px; font-weight: 900; }
+        .popup-desc { color: #bdc3c7; font-size: 12px; }
+
+        /* STATS TABLE */
+        .stats-table { width: 100%; text-align: left; margin-bottom: 20px; border-collapse: collapse; }
+        .stats-table td { padding: 8px; border-bottom: 1px solid #bdc3c7; }
+        .stats-table td:last-child { text-align: right; font-weight: bold; color: #1abc9c; }
+
+    </style>
+</head>
+<body>
+
+    <div id="modal-overlay">
+        <div class="modal-box" id="modal-content"></div>
+    </div>
+
+    <div id="level-popup">
+        <div class="popup-title">Obiettivo</div>
+        <div id="popup-icon" class="popup-icon"></div>
+        <div id="popup-target" class="popup-target">0</div>
+        <div class="popup-desc">Cubi in un colpo solo</div>
+    </div>
+
+    <div id="scaler-container">
+        <div id="start-menu">
+            <div class="game-logo">Cubo<br><span style="color:#1abc9c">Logico</span></div>
+            <button class="menu-btn" onclick="startGame()">GIOCA</button>
+            <button class="menu-btn secondary" onclick="showStats()">STATISTICHE</button>
+            <button class="menu-btn info" onclick="showInstructions(true)">REGOLE</button>
+        </div>
+
+        <div id="main-container">
+            <div id="sidebar">
+                <div class="panel-title">Cubo <span style="color:#1abc9c">Logico</span></div>
+                
+                <div class="stat-box" id="timer-box">
+                    <div class="stat-label">TEMPO</div>
+                    <div class="stat-value" id="timer-display">90</div>
+                </div>
+
+                <div class="stat-box" id="mission-box">
+                    <div class="stat-label" style="width: 100%; margin-bottom: 2px;">OBIETTIVO</div>
+                    <div class="mission-row" style="display:flex; align-items:center; gap:5px;">
+                        <div id="mission-icon" class="mission-icon"></div>
+                        <div id="mission-target" class="mission-target">--</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-label">LIVELLO</div>
+                    <div class="stat-value" id="level-display">1</div>
+                </div>
+                
+                <div class="stat-box">
+                    <div class="stat-label">PUNTI</div>
+                    <div class="stat-value" id="score-display">0</div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-label">BONUS</div>
+                    <div class="stat-value" id="lives-display">100%</div>
+                </div>
+
+                <div class="controls">
+                    <button id="music-btn" class="btn-music" onclick="toggleMusic()">🎵</button>
+                    <button onclick="goToMenu()">🏠</button>
+                    <button onclick="confirmRestart()">🔄</button>
+                </div>
+            </div>
+
+            <div id="game-area"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- STATISTICHE ---
+        let gameStats = { highScore: 0, maxLevel: 1, totalGames: 0 };
+        function loadStats() {
+            const saved = localStorage.getItem('cuboLogicoStats');
+            if (saved) gameStats = JSON.parse(saved);
+        }
+        function saveStats() { localStorage.setItem('cuboLogicoStats', JSON.stringify(gameStats)); }
+        function showStats() {
+            loadStats();
+            const html = `
+                <div class="modal-title">LE TUE STATISTICHE</div>
+                <table class="stats-table">
+                    <tr><td>🏆 Record Punti</td><td>${gameStats.highScore}</td></tr>
+                    <tr><td>🚀 Livello Max</td><td>${gameStats.maxLevel}</td></tr>
+                    <tr><td>🎮 Partite Giocate</td><td>${gameStats.totalGames}</td></tr>
+                </table>
+                <button class="modal-btn" style="background:#e74c3c; margin-bottom:10px;" onclick="resetStats()">RESET DATI</button>
+                <button class="modal-btn" onclick="closeModal()">CHIUDI</button>
+            `;
+            document.getElementById('modal-content').innerHTML = html;
+            document.getElementById('modal-overlay').classList.add('visible');
+        }
+        function resetStats() {
+            if(confirm("Cancellare tutte le statistiche?")) {
+                gameStats = { highScore: 0, maxLevel: 1, totalGames: 0 };
+                saveStats(); showStats();
+            }
+        }
+
+        // --- SCALING INTELLIGENTE (FIX DESKTOP) ---
+        function resizeGame() {
+            try {
+                const container = document.getElementById('scaler-container');
+                const winW = window.innerWidth;
+                const winH = window.innerHeight;
+
+                // Calcolo dimensioni base in base al dispositivo
+                let baseWidth, baseHeight;
+                
+                // Se la finestra è larga (Desktop/Tablet Orizzontale)
+                if (winW >= 850) {
+                    baseWidth = 850; // Larghezza layout orizzontale
+                    baseHeight = 600; // Altezza layout orizzontale
+                } else {
+                    // Mobile (Verticale)
+                    baseWidth = 540;
+                    baseHeight = 850;
+                }
+
+                const scaleX = winW / baseWidth;
+                const scaleY = winH / baseHeight;
+                let scale = Math.min(scaleX, scaleY) * 0.95; // 95% per margine
+                
+                // Limiti di sicurezza
+                if (scale > 1.2) scale = 1.2;
+                if (scale < 0.4) scale = 0.4;
+                
+                container.style.transform = `scale(${scale})`;
+            } catch(e) { console.error(e); }
+        }
+        window.addEventListener('resize', resizeGame);
+        // Doppio check al caricamento
+        window.addEventListener('load', () => { setTimeout(resizeGame, 50); loadStats(); });
+
+        // --- GAME CORE ---
+        const rows = 10;
+        const cols = 10;
+        const cellSize = 50;
+        const TNT_VALUE = 9; 
+        const TIME_PER_LEVEL = 90; 
+        const MISSION_BONUS = 3000;
+
+        let blocks = [];
+        let score = 0; let bonusLives = 10; let level = 1;
+        let isAnimating = false; let nextBlockId = 0;
+        let currentMission = { color: 1, targetSize: 0, completed: false };
+        let timeRemaining = TIME_PER_LEVEL; let timerInterval = null;
+        let lastHoveredBlock = null; let isTouchActive = false;
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let isMusicPlaying = false; let musicStarted = false; let ambientInterval = null;
+        const melodyNotes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && audioCtx.state === 'running') audioCtx.suspend();
+            else if (!document.hidden && isMusicPlaying && audioCtx.state === 'suspended') audioCtx.resume();
+        });
+
+        const gameArea = document.getElementById('game-area');
+        // EVENTI
+        gameArea.addEventListener('touchstart', handleTouchStart, {passive: false});
+        gameArea.addEventListener('touchmove', handleTouchMove, {passive: false});
+        gameArea.addEventListener('touchend', handleTouchEnd, {passive: false});
+        gameArea.addEventListener('mousemove', handleMouseMove);
+        gameArea.addEventListener('click', handleMouseClick);
+
+        const startMenu = document.getElementById('start-menu');
+        const mainContainer = document.getElementById('main-container');
+
+        // --- MENU LOGIC ---
+        function startGame() {
+            startMenu.style.display = 'none'; 
+            mainContainer.style.display = 'flex'; // Mostra il gioco
+            
+            // FIX IMPORTANTISSIMO: Sblocca l'audio appena clicchi "GIOCA"
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            gameStats.totalGames++; saveStats();
+            level = 1; score = 0; bonusLives = 10;
+            
+            if (!musicStarted) { toggleMusic(true); musicStarted = true; }
+            
+            // FIX IMPORTANTISSIMO: Diamo tempo al browser di disegnare il gioco prima di calcolare le posizioni
+            // Questo risolve il problema che dovevi cliccare "Ricomincia"
+            setTimeout(() => {
+                resizeGame(); // Ricalcola dimensioni
+                initGame();   // Crea i cubi
+            }, 50);
+        }
+
+        function goToMenu() {
+            if (timerInterval) clearInterval(timerInterval);
+            mainContainer.style.display = 'none'; startMenu.style.display = 'flex'; 
+            resizeGame(); // Ridimensiona per il menu
+        }
+        function closeModal() { document.getElementById('modal-overlay').classList.remove('visible'); }
+        function showModal(type, title, text, btnText, action) {
+            let html = `<div class="modal-title">${title}</div><div class="modal-text">${type==='rules'?`<ul class="rules-list">${text}</ul>`:text}</div>`;
+            html += `<button class="modal-btn" id="modal-action-btn">${btnText || 'CHIUDI'}</button>`;
+            const content = document.getElementById('modal-content');
+            content.innerHTML = html;
+            document.getElementById('modal-overlay').classList.add('visible');
+            document.getElementById('modal-action-btn').onclick = () => {
+                document.getElementById('modal-overlay').classList.remove('visible');
+                if (action) action();
+            };
+        }
+        function showInstructions(fromMenu = false) {
+            const wasRunning = (timerInterval !== null);
+            if (wasRunning && !fromMenu) clearInterval(timerInterval);
+            const rules = `
+                <li>🏆 <b>Obiettivo:</b> Elimina i cubi entro il tempo!</li>
+                <li>👆 <b>Mobile:</b> Tieni premuto per mirare, rilascia per distruggere.</li>
+                <li>🖱️ <b>PC:</b> Click per distruggere.</li>
+                <li>🎯 <b>Missioni:</b> Distruggi un gruppo ESATTAMENTE del numero richiesto.</li>
+                <li>🧨 <b>TNT Potenziata:</b> Ora distrugge un raggio di 2 blocchi!</li>
+            `;
+            showModal('rules', 'Regole', rules, fromMenu?'OK':'RIPRENDI', () => { if(wasRunning && blocks.length>0) startTimer(); });
+        }
+
+        // --- GAME LOGIC ---
+        function initGame() {
+            gameArea.innerHTML = ''; blocks = []; lastHoveredBlock = null;
+            let numColors = Math.min(level + 1, 5); 
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) { createBlock(r, c, Math.floor(Math.random() * numColors) + 1); }
+            }
+            const tntIdx = Math.floor(Math.random() * blocks.length);
+            blocks[tntIdx].color = TNT_VALUE; updateBlockVisual(blocks[tntIdx]);
+
+            currentMission = { color: Math.floor(Math.random() * numColors) + 1, targetSize: Math.floor(Math.random() * 5) + 5, completed: false };
+            updateMissionUI(); showLevelPopup();
+            isAnimating = false; clearInterval(timerInterval); timeRemaining = TIME_PER_LEVEL;
+            setTimeout(() => { startTimer(); }, 2000); updateUI();
+        }
+
+        function createBlock(r, c, color) {
+            const el = document.createElement('div'); el.classList.add('cube');
+            const block = { id: nextBlockId++, r, c, color, element: el };
+            updateBlockVisual(block); gameArea.appendChild(el); blocks.push(block);
+        }
+
+        function updateBlockVisual(block) {
+            block.element.className = 'cube'; 
+            if (block.color === TNT_VALUE) block.element.classList.add('tnt');
+            else block.element.classList.add(`color-${block.color}`);
+            block.element.style.top = (block.r * cellSize + 2) + 'px';
+            block.element.style.left = (block.c * cellSize + 2) + 'px';
+        }
+
+        function showLevelPopup() {
+            const p = document.getElementById('level-popup');
+            document.getElementById('popup-icon').className = `popup-icon color-${currentMission.color}`;
+            document.getElementById('popup-target').textContent = currentMission.targetSize;
+            p.classList.add('active'); setTimeout(() => { p.classList.remove('active'); }, 2000);
+        }
+
+        function updateMissionUI() {
+            const icon = document.getElementById('mission-icon'); const box = document.getElementById('mission-box');
+            icon.className = `mission-icon color-${currentMission.color}`;
+            if (currentMission.completed) { box.classList.add('mission-success'); document.getElementById('mission-target').textContent = "OK"; }
+            else { box.classList.remove('mission-success'); document.getElementById('mission-target').textContent = currentMission.targetSize; }
+        }
+
+        function startTimer() {
+            document.getElementById('timer-display').textContent = timeRemaining;
+            timerInterval = setInterval(() => {
+                timeRemaining--; document.getElementById('timer-display').textContent = timeRemaining;
+                if (timeRemaining < 20) document.getElementById('timer-display').style.color = '#e74c3c';
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval); playSound('gameover');
+                    if(score>gameStats.highScore){gameStats.highScore=score; saveStats();}
+                    showModal('info', 'Tempo Scaduto!', `Punti: ${score}<br>Record: ${gameStats.highScore}`, 'Menu', goToMenu);
+                }
+            }, 1000);
+        }
+
+        // --- INPUT SYSTEM (MATH BASED - PRECISION FIX) ---
+        function getBlockFromEvent(e) {
+            const rect = gameArea.getBoundingClientRect();
+            const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+
+            // Calcolo matematico della griglia (ignora i bordi arrotondati e gli spazi vuoti)
+            // rect.width / cols ti dà la larghezza esatta di una cella logica
+            const c = Math.floor(x / (rect.width / cols));
+            const r = Math.floor(y / (rect.height / rows));
+
+            if (c < 0 || c >= cols || r < 0 || r >= rows) return null;
+            return blocks.find(b => b.r === r && b.c === c);
+        }
+
+        function handleTouchStart(e) { e.preventDefault(); isTouchActive = true; if(isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b){ previewBlock(b); lastHoveredBlock=b; } }
+        function handleTouchMove(e) { e.preventDefault(); if(isAnimating) return; const b = getBlockFromEvent(e); if(b && b!==lastHoveredBlock){ previewBlock(b); lastHoveredBlock=b; } else if(!b){ clearHighlights(); lastHoveredBlock=null; } }
+        function handleTouchEnd(e) { e.preventDefault(); if(isAnimating) return; if(lastHoveredBlock){ executeMove(lastHoveredBlock); lastHoveredBlock=null; clearHighlights(); } setTimeout(()=>{isTouchActive=false},500); }
+        
+        function handleMouseMove(e) { if(isTouchActive || isAnimating) return; const b = getBlockFromEvent(e); if(b) previewBlock(b); else clearHighlights(); }
+        function handleMouseClick(e) { if(isTouchActive || isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b) executeMove(b); }
+
+        function previewBlock(block) {
+            clearHighlights();
+            let related = (block.color === TNT_VALUE) ? getTNTTargets(block.r, block.c).concat([block]) : getMatches(block.r, block.c, block.color);
+            related.forEach(b => { b.element.classList.add(block.color===TNT_VALUE?'tnt-range':'preview'); if(block.color!==TNT_VALUE) b.element.innerText = related.length; });
+        }
+        function clearHighlights() { blocks.forEach(b => { b.element.classList.remove('preview', 'tnt-range'); if(b.color!==TNT_VALUE) b.element.innerText = ''; }); }
+
+        // --- LOGICA GIOCO ---
+        function getTNTTargets(r, c) {
+            let targets = [];
+            const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]; 
+            dirs.forEach(d => {
+                for (let i = 1; i <= 2; i++) { 
+                    let b = blocks.find(k => k.r === r + (d[0] * i) && k.c === c + (d[1] * i));
+                    if (b) targets.push(b);
+                }
+            });
+            return targets;
+        }
+
+        function getMatches(r, c, color) {
+            let start = blocks.find(b => b.r===r && b.c===c); if(!start) return [];
+            let m = [], s = [start], v = new Set([start.id]);
+            while(s.length) {
+                let curr = s.pop(); m.push(curr);
+                [{r:curr.r-1,c:curr.c},{r:curr.r+1,c:curr.c},{r:curr.r,c:curr.c-1},{r:curr.r,c:curr.c+1}].forEach(p => {
+                    let n = blocks.find(b => b.r===p.r && b.c===p.c); if(n && !v.has(n.id) && n.color === color) { v.add(n.id); s.push(n); }
+                });
+            }
+            return m;
+        }
+
+        function executeMove(block) {
+            let targets = [];
+            if (block.color === TNT_VALUE) {
+                targets = getTNTTargets(block.r, block.c); targets.push(block);
+                playSound('boom'); 
+                score += 50;
+            } else {
+                targets = getMatches(block.r, block.c, block.color);
+                if (targets.length > 1) {
+                    score += (targets.length * targets.length) * 10;
+                    if (!currentMission.completed && block.color === currentMission.color && targets.length === currentMission.targetSize) {
+                        currentMission.completed = true; playSound('success'); updateMissionUI();
+                    } else playSound('pop');
+                } else {
+                    if (bonusLives > 0) { bonusLives--; playSound('error'); }
+                    else { playSound('gameover'); gameOverSequence(); return; }
+                }
+            }
+            destroyBlocks(targets);
+        }
+
+        function destroyBlocks(targets) {
+            isAnimating = true; clearHighlights();
+            const idsToRemove = new Set(targets.map(b => b.id));
+            targets.forEach(b => { b.element.classList.add('imploding'); setTimeout(() => { if(b.element.parentNode) b.element.parentNode.removeChild(b.element); }, 300); });
+            blocks = blocks.filter(b => !idsToRemove.has(b.id));
+
+            for (let c = 0; c < cols; c++) {
+                let colBlocks = blocks.filter(b => b.c === c).sort((a,b) => b.r - a.r);
+                let cur = rows - 1;
+                for (let b of colBlocks) { b.r = cur; cur--; }
+            }
+            let activeColIndex = 0;
+            for (let c = 0; c < cols; c++) {
+                let colBlocks = blocks.filter(b => b.c === c);
+                if (colBlocks.length > 0) { if (c !== activeColIndex) colBlocks.forEach(b => b.c = activeColIndex); activeColIndex++; }
+            }
+            blocks.forEach(b => updateBlockVisual(b));
+            updateUI(); setTimeout(() => { isAnimating = false; checkLevelComplete(); }, 450);
+        }
+
+        function checkLevelComplete() {
+            if (blocks.length === 0) {
+                clearInterval(timerInterval); playSound('pop');
+                if (currentMission.completed) score += MISSION_BONUS;
+                if(level >= gameStats.maxLevel) { gameStats.maxLevel = level + 1; saveStats(); }
+                showModal('info', `Livello ${level} Finito!`, `Punti: ${score}<br>${currentMission.completed?'<span style="color:#2ecc71">OBIETTIVO!</span>':'Obiettivo Fallito'}`, 'Avanti', () => { level++; initGame(); });
+            }
+        }
+
+        function gameOverSequence() {
+            isAnimating = true; clearInterval(timerInterval);
+            if (score > gameStats.highScore) { gameStats.highScore = score; saveStats(); }
+            showModal('info', 'GAME OVER', `Bonus esaurito.<br>Totale: ${score}`, 'Menu', goToMenu);
+        }
+
+        function confirmRestart() { if(confirm("Ricominciare?")) { level=1; score=0; bonusLives=10; initGame(); } }
+        function updateUI() {
+            document.getElementById('score-display').textContent = score;
+            document.getElementById('lives-display').textContent = (bonusLives * 10) + "%";
+            document.getElementById('level-display').textContent = level;
+        }
+
+        // --- AUDIO ---
+        function toggleMusic(forceStart = false) {
+            const btn = document.getElementById('music-btn'); // Riferimento sicuro
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            if (forceStart) { 
+                if (!isMusicPlaying) { 
+                    ambientInterval = setInterval(playAmbientNote, 400); 
+                    isMusicPlaying = true; 
+                    btn.textContent = "🔇"; 
+                    btn.classList.add('active'); 
+                } 
+                return; 
+            }
+            
+            if (isMusicPlaying) { 
+                clearInterval(ambientInterval); 
+                isMusicPlaying = false; 
+                btn.textContent = "🎵"; 
+                btn.classList.remove('active'); 
+            } else { 
+                ambientInterval = setInterval(playAmbientNote, 400); 
+                isMusicPlaying = true; 
+                btn.textContent = "🔇"; 
+                btn.classList.add('active'); 
+            }
+        }
+
+        function playAmbientNote() {
+            const freq = melodyNotes[Math.floor(Math.random() * melodyNotes.length)];
+            const t = audioCtx.currentTime; const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination);
+            o.type = 'sine'; o.frequency.setValueAtTime(freq, t); g.gain.setValueAtTime(0, t);
+            g.gain.linearRampToValueAtTime(0.05, t+0.05); g.gain.exponentialRampToValueAtTime(0.001, t+1.5);
+            o.start(t); o.stop(t+1.5);
+        }
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime; 
+            
+            if (type === 'boom') {
+                const bufferSize = audioCtx.sampleRate * 0.5; 
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+                const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+                const noiseGain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1000;
+                noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+                noiseGain.gain.setValueAtTime(0.8, t); noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+                noise.start(t);
+            } else {
+                const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination);
+                if(type==='pop'){o.type='triangle';o.frequency.setValueAtTime(400,t);o.frequency.exponentialRampToValueAtTime(800,t+0.1);g.gain.setValueAtTime(0.1,t);g.gain.linearRampToValueAtTime(0,t+0.1);o.start(t); o.stop(t+0.1);}
+                else if(type==='success'){o.type='sine';o.frequency.setValueAtTime(440,t);o.frequency.linearRampToValueAtTime(880,t+0.1);g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.3);o.start(t); o.stop(t+0.3);}
+                else if(type==='gameover'){o.type='sawtooth';o.frequency.setValueAtTime(300,t);o.frequency.exponentialRampToValueAtTime(50,t+1);g.gain.setValueAtTime(0.3,t);g.gain.linearRampToValueAtTime(0,t+1);o.start(t); o.stop(t+1);}
+                else if(type==='error'){o.type='square';o.frequency.setValueAtTime(150,t);g.gain.setValueAtTime(0.1,t);g.gain.linearRampToValueAtTime(0,t+0.1);o.start(t); o.stop(t+0.1);}
+            }
+        }
+    </script>
+</body>
+</html>
