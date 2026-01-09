@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cubo Logico</title>
- <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
-<meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Cubo Logico">
     <link rel="apple-touch-icon" href="icona.png">
@@ -26,13 +26,11 @@
         #scaler-container {
             transform-origin: center center;
             transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            /* Dimensioni base fisse per il calcolo dello zoom */
             width: 540px; 
             display: flex; justify-content: center; align-items: center;
             position: relative;
         }
 
-        /* --- MENU INIZIALE --- */
         #start-menu {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             background-color: #34495e; border-radius: 20px;
@@ -58,9 +56,8 @@
         .menu-btn.secondary { background: #1abc9c; box-shadow: 0 5px 0 #16a085; }
         .menu-btn.info { background: #3498db; box-shadow: 0 5px 0 #2980b9; }
 
-        /* --- CONTENITORE GIOCO --- */
         #main-container {
-            display: none; /* Nascosto all'avvio */
+            display: none; 
             gap: 15px; padding: 15px;
             background-color: #34495e; border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 2px solid #4e6a85;
@@ -68,9 +65,8 @@
             width: 500px; 
         }
 
-        /* LAYOUT DESKTOP: Affianca sidebar e gioco */
         @media (min-width: 850px) {
-            #scaler-container { width: 850px; } /* Larghezza base desktop */
+            #scaler-container { width: 850px; }
             #main-container {
                 flex-direction: row; align-items: flex-start;
                 padding: 20px; gap: 20px; width: auto;
@@ -134,8 +130,6 @@
             background-color: #222; border-radius: 12px;
             border: 4px solid #2c3e50; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
             touch-action: none; margin-top: 5px; 
-            
-            /* MODIFICA: Cursore cambiato in manina (pointer) */
             cursor: pointer;
         }
 
@@ -147,13 +141,12 @@
             transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
                         left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
                         transform 0.1s, opacity 0.2s;
-            /* FONDAMENTALE: i cubi non bloccano il mouse, così calcoliamo la posizione matematica sulla griglia */
             pointer-events: none; 
         }
         
         .color-1 { background: #ff6b6b; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
         .color-2 { background: #48dbfb; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
-        .color-3 { background: #feca57; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .color-3 { background: #feca57; color: #2c3e50; text-shadow: none; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
         .color-4 { background: #1dd1a1; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
         .color-5 { background: #5f27cd; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
 
@@ -161,7 +154,8 @@
         .tnt::after { content: "TNT"; font-weight: 900; font-size: 14px; }
 
         .preview { filter: brightness(1.4); transform: scale(0.92); border: 3px solid white; z-index: 100;}
-        .tnt-range { filter: sepia(1) hue-rotate(-50deg) saturate(3); transform: scale(0.9); }
+        /* FIX Z-INDEX: Assicura che l'alone TNT sia sopra a tutto */
+        .tnt-range { filter: sepia(1) hue-rotate(-50deg) saturate(3); transform: scale(0.9); z-index: 200 !important; }
         .imploding { transform: scale(0); opacity: 0; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
@@ -261,7 +255,7 @@
 
                 <div class="controls">
                     <button id="music-btn" class="btn-music" onclick="toggleMusic()">🎵</button>
-                    <button onclick="goToMenu()">🏠</button>
+                    <button onclick="confirmHome()">🏠</button>
                     <button onclick="confirmRestart()">🔄</button>
                 </div>
             </div>
@@ -300,39 +294,24 @@
             }
         }
 
-        // --- SCALING INTELLIGENTE (FIX DESKTOP) ---
+        // --- SCALING INTELLIGENTE ---
         function resizeGame() {
             try {
                 const container = document.getElementById('scaler-container');
                 const winW = window.innerWidth;
                 const winH = window.innerHeight;
-
-                // Calcolo dimensioni base in base al dispositivo
                 let baseWidth, baseHeight;
-                
-                // Se la finestra è larga (Desktop/Tablet Orizzontale)
-                if (winW >= 850) {
-                    baseWidth = 850; // Larghezza layout orizzontale
-                    baseHeight = 600; // Altezza layout orizzontale
-                } else {
-                    // Mobile (Verticale)
-                    baseWidth = 540;
-                    baseHeight = 850;
-                }
-
+                if (winW >= 850) { baseWidth = 850; baseHeight = 600; } 
+                else { baseWidth = 540; baseHeight = 850; }
                 const scaleX = winW / baseWidth;
                 const scaleY = winH / baseHeight;
-                let scale = Math.min(scaleX, scaleY) * 0.95; // 95% per margine
-                
-                // Limiti di sicurezza
+                let scale = Math.min(scaleX, scaleY) * 0.95; 
                 if (scale > 1.2) scale = 1.2;
                 if (scale < 0.4) scale = 0.4;
-                
                 container.style.transform = `scale(${scale})`;
             } catch(e) { console.error(e); }
         }
         window.addEventListener('resize', resizeGame);
-        // Doppio check al caricamento
         window.addEventListener('load', () => { setTimeout(resizeGame, 50); loadStats(); });
 
         // --- GAME CORE ---
@@ -341,7 +320,8 @@
         const cellSize = 50;
         const TNT_VALUE = 9; 
         const TIME_PER_LEVEL = 90; 
-        const MISSION_BONUS = 3000;
+        const MISSION_BONUS = 1000; 
+        const LEVEL_BONUS = 10000; 
 
         let blocks = [];
         let score = 0; let bonusLives = 10; let level = 1;
@@ -349,6 +329,7 @@
         let currentMission = { color: 1, targetSize: 0, completed: false };
         let timeRemaining = TIME_PER_LEVEL; let timerInterval = null;
         let lastHoveredBlock = null; let isTouchActive = false;
+        let consecutiveMissions = 0;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let isMusicPlaying = false; let musicStarted = false; let ambientInterval = null;
@@ -360,7 +341,6 @@
         });
 
         const gameArea = document.getElementById('game-area');
-        // EVENTI
         gameArea.addEventListener('touchstart', handleTouchStart, {passive: false});
         gameArea.addEventListener('touchmove', handleTouchMove, {passive: false});
         gameArea.addEventListener('touchend', handleTouchEnd, {passive: false});
@@ -370,35 +350,44 @@
         const startMenu = document.getElementById('start-menu');
         const mainContainer = document.getElementById('main-container');
 
-        // --- MENU LOGIC ---
+        // --- MENU E AVVIO ---
         function startGame() {
             startMenu.style.display = 'none'; 
-            mainContainer.style.display = 'flex'; // Mostra il gioco
-            
-            // FIX IMPORTANTISSIMO: Sblocca l'audio appena clicchi "GIOCA"
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            mainContainer.style.display = 'flex'; 
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
 
+            const tutorialSeen = localStorage.getItem('cuboLogicoTutorialSeen');
+            if (!tutorialSeen) {
+                showInstructions(true, () => {
+                    localStorage.setItem('cuboLogicoTutorialSeen', 'true');
+                    runGameLogic();
+                });
+            } else {
+                runGameLogic();
+            }
+        }
+
+        function runGameLogic() {
             gameStats.totalGames++; saveStats();
-            level = 1; score = 0; bonusLives = 10;
-            
+            level = 1; score = 0; bonusLives = 10; consecutiveMissions = 0;
             if (!musicStarted) { toggleMusic(true); musicStarted = true; }
-            
-            // FIX IMPORTANTISSIMO: Diamo tempo al browser di disegnare il gioco prima di calcolare le posizioni
-            // Questo risolve il problema che dovevi cliccare "Ricomincia"
-            setTimeout(() => {
-                resizeGame(); // Ricalcola dimensioni
-                initGame();   // Crea i cubi
-            }, 50);
+            setTimeout(() => { resizeGame(); initGame(); }, 50);
+        }
+
+        function confirmHome() {
+            if(confirm("Vuoi davvero tornare al menu? La partita andrà persa.")) {
+                goToMenu();
+            }
         }
 
         function goToMenu() {
             if (timerInterval) clearInterval(timerInterval);
             mainContainer.style.display = 'none'; startMenu.style.display = 'flex'; 
-            resizeGame(); // Ridimensiona per il menu
+            resizeGame(); 
         }
+
         function closeModal() { document.getElementById('modal-overlay').classList.remove('visible'); }
+        
         function showModal(type, title, text, btnText, action) {
             let html = `<div class="modal-title">${title}</div><div class="modal-text">${type==='rules'?`<ul class="rules-list">${text}</ul>`:text}</div>`;
             html += `<button class="modal-btn" id="modal-action-btn">${btnText || 'CHIUDI'}</button>`;
@@ -410,17 +399,24 @@
                 if (action) action();
             };
         }
-        function showInstructions(fromMenu = false) {
+
+        function showInstructions(fromMenu = false, customAction = null) {
             const wasRunning = (timerInterval !== null);
             if (wasRunning && !fromMenu) clearInterval(timerInterval);
+            
+            // AGGIORNATO CON ISTRUZIONI PC/SMARTPHONE
             const rules = `
+                <li>🖥️ <b>PC:</b> Usa il Mouse. Passa sopra per l'anteprima, clicca per distruggere.</li>
+                <li>📱 <b>Smartphone:</b> Tocca e tieni premuto per l'anteprima, rilascia per distruggere.</li>
                 <li>🏆 <b>Obiettivo:</b> Elimina i cubi entro il tempo!</li>
-                <li>👆 <b>Mobile:</b> Tieni premuto per mirare, rilascia per distruggere.</li>
-                <li>🖱️ <b>PC:</b> Click per distruggere.</li>
-                <li>🎯 <b>Missioni:</b> Distruggi un gruppo ESATTAMENTE del numero richiesto.</li>
-                <li>🧨 <b>TNT Potenziata:</b> Ora distrugge un raggio di 2 blocchi!</li>
+                <li>💔 <b>Bonus:</b> Cliccare su un cubo isolato toglie 10%. A 0% perdi.</li>
+                <li>❤️ <b>Recupero:</b> Completa 3 obiettivi di fila per recuperare 10% Bonus!</li>
+                <li>🧨 <b>TNT:</b> I cubi TNT ti aiutano a rimuovere cubi singoli senza consumare bonus</li>
             `;
-            showModal('rules', 'Regole', rules, fromMenu?'OK':'RIPRENDI', () => { if(wasRunning && blocks.length>0) startTimer(); });
+            
+            const btnLabel = customAction ? 'INIZIA' : (fromMenu ? 'OK' : 'RIPRENDI');
+            const finalAction = customAction ? customAction : () => { if(wasRunning && blocks.length>0) startTimer(); };
+            showModal('rules', 'Regole', rules, btnLabel, finalAction);
         }
 
         // --- GAME LOGIC ---
@@ -430,8 +426,17 @@
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) { createBlock(r, c, Math.floor(Math.random() * numColors) + 1); }
             }
-            const tntIdx = Math.floor(Math.random() * blocks.length);
-            blocks[tntIdx].color = TNT_VALUE; updateBlockVisual(blocks[tntIdx]);
+            
+            let tntCount = 2;
+            let assignedTNT = 0;
+            while(assignedTNT < tntCount) {
+                const idx = Math.floor(Math.random() * blocks.length);
+                if (blocks[idx].color !== TNT_VALUE) {
+                    blocks[idx].color = TNT_VALUE;
+                    updateBlockVisual(blocks[idx]);
+                    assignedTNT++;
+                }
+            }
 
             currentMission = { color: Math.floor(Math.random() * numColors) + 1, targetSize: Math.floor(Math.random() * 5) + 5, completed: false };
             updateMissionUI(); showLevelPopup();
@@ -480,17 +485,12 @@
             }, 1000);
         }
 
-        // --- INPUT SYSTEM (MATH BASED - PRECISION FIX) ---
         function getBlockFromEvent(e) {
             const rect = gameArea.getBoundingClientRect();
             const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
             const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-
-            // Calcolo matematico della griglia (ignora i bordi arrotondati e gli spazi vuoti)
-            // rect.width / cols ti dà la larghezza esatta di una cella logica
             const c = Math.floor(x / (rect.width / cols));
             const r = Math.floor(y / (rect.height / rows));
-
             if (c < 0 || c >= cols || r < 0 || r >= rows) return null;
             return blocks.find(b => b.r === r && b.c === c);
         }
@@ -498,29 +498,55 @@
         function handleTouchStart(e) { e.preventDefault(); isTouchActive = true; if(isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b){ previewBlock(b); lastHoveredBlock=b; } }
         function handleTouchMove(e) { e.preventDefault(); if(isAnimating) return; const b = getBlockFromEvent(e); if(b && b!==lastHoveredBlock){ previewBlock(b); lastHoveredBlock=b; } else if(!b){ clearHighlights(); lastHoveredBlock=null; } }
         function handleTouchEnd(e) { e.preventDefault(); if(isAnimating) return; if(lastHoveredBlock){ executeMove(lastHoveredBlock); lastHoveredBlock=null; clearHighlights(); } setTimeout(()=>{isTouchActive=false},500); }
-        
         function handleMouseMove(e) { if(isTouchActive || isAnimating) return; const b = getBlockFromEvent(e); if(b) previewBlock(b); else clearHighlights(); }
         function handleMouseClick(e) { if(isTouchActive || isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b) executeMove(b); }
 
+        // --- SISTEMA CALCOLO TARGETS ROBUSTO (RADAR) ---
+        // Funzione unificata che calcola distruzione e reazioni a catena
+        function calculateDestructionSet(startBlock) {
+            if (startBlock.color !== TNT_VALUE) {
+                // Logica normale (colori)
+                return { targets: getMatches(startBlock.r, startBlock.c, startBlock.color), tntExploded: 0 };
+            }
+
+            // Logica TNT: Reazione a Catena
+            let tntQueue = [startBlock];
+            let explodedTNTs = new Set();
+            let allTargetsMap = new Map();
+
+            while(tntQueue.length > 0) {
+                let current = tntQueue.pop();
+                if(explodedTNTs.has(current.id)) continue;
+                
+                explodedTNTs.add(current.id);
+                allTargetsMap.set(current.id, current);
+
+                // RADAR 5x5: Scansiona TUTTI i blocchi e trova quelli nel raggio
+                let nearby = blocks.filter(b => Math.abs(b.r - current.r) <= 2 && Math.abs(b.c - current.c) <= 2);
+                
+                nearby.forEach(b => {
+                    // Se trovi un'altra TNT non ancora esplosa, aggiungila alla coda
+                    if(b.color === TNT_VALUE && !explodedTNTs.has(b.id)) {
+                        tntQueue.push(b); 
+                    }
+                    allTargetsMap.set(b.id, b); // Distruggi tutto ciò che è nel raggio
+                });
+            }
+            return { targets: Array.from(allTargetsMap.values()), tntExploded: explodedTNTs.size };
+        }
+
         function previewBlock(block) {
             clearHighlights();
-            let related = (block.color === TNT_VALUE) ? getTNTTargets(block.r, block.c).concat([block]) : getMatches(block.r, block.c, block.color);
-            related.forEach(b => { b.element.classList.add(block.color===TNT_VALUE?'tnt-range':'preview'); if(block.color!==TNT_VALUE) b.element.innerText = related.length; });
-        }
-        function clearHighlights() { blocks.forEach(b => { b.element.classList.remove('preview', 'tnt-range'); if(b.color!==TNT_VALUE) b.element.innerText = ''; }); }
-
-        // --- LOGICA GIOCO ---
-        function getTNTTargets(r, c) {
-            let targets = [];
-            const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]; 
-            dirs.forEach(d => {
-                for (let i = 1; i <= 2; i++) { 
-                    let b = blocks.find(k => k.r === r + (d[0] * i) && k.c === c + (d[1] * i));
-                    if (b) targets.push(b);
-                }
+            let result = calculateDestructionSet(block);
+            let related = result.targets;
+            
+            related.forEach(b => { 
+                b.element.classList.add(block.color===TNT_VALUE?'tnt-range':'preview'); 
+                if(block.color!==TNT_VALUE) b.element.innerText = related.length; 
             });
-            return targets;
         }
+        
+        function clearHighlights() { blocks.forEach(b => { b.element.classList.remove('preview', 'tnt-range'); if(b.color!==TNT_VALUE) b.element.innerText = ''; }); }
 
         function getMatches(r, c, color) {
             let start = blocks.find(b => b.r===r && b.c===c); if(!start) return [];
@@ -535,17 +561,21 @@
         }
 
         function executeMove(block) {
-            let targets = [];
+            // Usa la STESSA logica del preview per coerenza totale
+            let result = calculateDestructionSet(block);
+            let targets = result.targets;
+
             if (block.color === TNT_VALUE) {
-                targets = getTNTTargets(block.r, block.c); targets.push(block);
                 playSound('boom'); 
-                score += 50;
+                score += 50 * result.tntExploded;
             } else {
-                targets = getMatches(block.r, block.c, block.color);
                 if (targets.length > 1) {
-                    score += (targets.length * targets.length) * 10;
+                    score += Math.floor(targets.length * targets.length * 2.3);
                     if (!currentMission.completed && block.color === currentMission.color && targets.length === currentMission.targetSize) {
-                        currentMission.completed = true; playSound('success'); updateMissionUI();
+                        currentMission.completed = true; 
+                        score += MISSION_BONUS; 
+                        playSound('success'); 
+                        updateMissionUI();
                     } else playSound('pop');
                 } else {
                     if (bonusLives > 0) { bonusLives--; playSound('error'); }
@@ -578,9 +608,17 @@
         function checkLevelComplete() {
             if (blocks.length === 0) {
                 clearInterval(timerInterval); playSound('pop');
-                if (currentMission.completed) score += MISSION_BONUS;
+                score += LEVEL_BONUS; 
+                if (currentMission.completed) {
+                    consecutiveMissions++;
+                    if (consecutiveMissions >= 3) {
+                        consecutiveMissions = 0; 
+                        if (bonusLives < 10) { bonusLives++; alert("BONUS RECUPERATO! (+10%)"); }
+                    }
+                } else { consecutiveMissions = 0; }
+
                 if(level >= gameStats.maxLevel) { gameStats.maxLevel = level + 1; saveStats(); }
-                showModal('info', `Livello ${level} Finito!`, `Punti: ${score}<br>${currentMission.completed?'<span style="color:#2ecc71">OBIETTIVO!</span>':'Obiettivo Fallito'}`, 'Avanti', () => { level++; initGame(); });
+                showModal('info', `Livello ${level} Finito!`, `Punti: ${score}<br>${currentMission.completed?'<span style="color:#2ecc71">OBIETTIVO +1000!</span>':'Obiettivo Fallito'}`, 'Avanti', () => { level++; initGame(); });
             }
         }
 
@@ -590,7 +628,10 @@
             showModal('info', 'GAME OVER', `Bonus esaurito.<br>Totale: ${score}`, 'Menu', goToMenu);
         }
 
-        function confirmRestart() { if(confirm("Ricominciare?")) { level=1; score=0; bonusLives=10; initGame(); } }
+        function confirmRestart() { if(confirm("Ricominciare la partita? I progressi attuali andranno persi.")) { 
+            level=1; score=0; bonusLives=10; consecutiveMissions=0; initGame(); 
+        } }
+        
         function updateUI() {
             document.getElementById('score-display').textContent = score;
             document.getElementById('lives-display').textContent = (bonusLives * 10) + "%";
@@ -599,30 +640,14 @@
 
         // --- AUDIO ---
         function toggleMusic(forceStart = false) {
-            const btn = document.getElementById('music-btn'); // Riferimento sicuro
+            const btn = document.getElementById('music-btn'); 
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            
             if (forceStart) { 
-                if (!isMusicPlaying) { 
-                    ambientInterval = setInterval(playAmbientNote, 400); 
-                    isMusicPlaying = true; 
-                    btn.textContent = "🔇"; 
-                    btn.classList.add('active'); 
-                } 
+                if (!isMusicPlaying) { ambientInterval = setInterval(playAmbientNote, 400); isMusicPlaying = true; btn.textContent = "🔇"; btn.classList.add('active'); } 
                 return; 
             }
-            
-            if (isMusicPlaying) { 
-                clearInterval(ambientInterval); 
-                isMusicPlaying = false; 
-                btn.textContent = "🎵"; 
-                btn.classList.remove('active'); 
-            } else { 
-                ambientInterval = setInterval(playAmbientNote, 400); 
-                isMusicPlaying = true; 
-                btn.textContent = "🔇"; 
-                btn.classList.add('active'); 
-            }
+            if (isMusicPlaying) { clearInterval(ambientInterval); isMusicPlaying = false; btn.textContent = "🎵"; btn.classList.remove('active'); } 
+            else { ambientInterval = setInterval(playAmbientNote, 400); isMusicPlaying = true; btn.textContent = "🔇"; btn.classList.add('active'); }
         }
 
         function playAmbientNote() {
@@ -636,18 +661,13 @@
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const t = audioCtx.currentTime; 
-            
             if (type === 'boom') {
-                const bufferSize = audioCtx.sampleRate * 0.5; 
-                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-                const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
-                const noiseGain = audioCtx.createGain();
+                const bufferSize = audioCtx.sampleRate * 0.5; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+                const noise = audioCtx.createBufferSource(); noise.buffer = buffer; const noiseGain = audioCtx.createGain();
                 const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1000;
                 noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
-                noiseGain.gain.setValueAtTime(0.8, t); noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
-                noise.start(t);
+                noiseGain.gain.setValueAtTime(0.8, t); noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5); noise.start(t);
             } else {
                 const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination);
                 if(type==='pop'){o.type='triangle';o.frequency.setValueAtTime(400,t);o.frequency.exponentialRampToValueAtTime(800,t+0.1);g.gain.setValueAtTime(0.1,t);g.gain.linearRampToValueAtTime(0,t+0.1);o.start(t); o.stop(t+0.1);}
