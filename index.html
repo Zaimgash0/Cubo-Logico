@@ -10,8 +10,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Cubo Logico">
     <link rel="apple-touch-icon" href="icona.png">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+
     <style>
-        /* CSS: Layout e Stile */
+        /* --- CSS BASE --- */
         body {
             font-family: 'Segoe UI', 'Roboto', sans-serif;
             background-color: #2c3e50;
@@ -21,6 +26,7 @@
             display: flex; justify-content: center; align-items: center; 
             overflow: hidden; user-select: none;
             -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
         #scaler-container {
@@ -31,6 +37,87 @@
             position: relative;
         }
 
+        /* --- STILI CUBI --- */
+        .cube {
+            width: 46px; height: 46px; border-radius: 8px;
+            position: absolute; display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 20px; color: rgba(255,255,255,0.9);
+            box-sizing: border-box;
+            transition: top 0.3s, left 0.3s, transform 0.1s, opacity 0.2s;
+            pointer-events: none; 
+        }
+        
+        .preview { filter: brightness(1.4); transform: scale(0.92); z-index: 100;}
+        .tnt-range { filter: sepia(1) hue-rotate(-50deg) saturate(3); transform: scale(0.9); z-index: 200 !important; }
+        .imploding { transform: scale(0); opacity: 0; }
+
+        .tnt { z-index: 50; }
+        .tnt::after { content: "TNT"; font-weight: 900; font-size: 14px; }
+
+        /* --- SISTEMA SKIN --- */
+        /* Default */
+        body.skin-default { background-color: #2c3e50; }
+        .skin-default .color-1 { background: #ff6b6b; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .skin-default .color-2 { background: #48dbfb; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .skin-default .color-3 { background: #feca57; color: #2c3e50; text-shadow: none; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .skin-default .color-4 { background: #1dd1a1; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .skin-default .color-5 { background: #5f27cd; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+        .skin-default .tnt { background: #2d3436; color: #ff9f43; border: 2px dashed #ff9f43; }
+        .skin-default .preview { border: 3px solid white; }
+
+        /* Neon */
+        body.skin-neon { background-color: #050505; color: #e0f7fa; }
+        body.skin-neon .modal-box { background-color: #111; border: 1px solid #0ff; color: #fff; box-shadow: 0 0 20px rgba(0,255,255,0.2); }
+        body.skin-neon #start-menu, body.skin-neon #main-container { background-color: #0a0a0a; border: 1px solid #333; }
+        .skin-neon .cube { background-color: rgba(0,0,0,0.8); border: 2px solid; color: #fff !important; text-shadow: 0 0 8px currentColor; box-shadow: 0 0 5px currentColor; border-radius: 4px; }
+        .skin-neon .color-1 { color: #ff0055 !important; border-color: #ff0055; }
+        .skin-neon .color-2 { color: #00ffff !important; border-color: #00ffff; }
+        .skin-neon .color-3 { color: #ffdd00 !important; border-color: #ffdd00; }
+        .skin-neon .color-4 { color: #00ff66 !important; border-color: #00ff66; }
+        .skin-neon .color-5 { color: #cc00ff !important; border-color: #cc00ff; }
+        .skin-neon .tnt { background: black !important; border: 2px dashed #ff3300 !important; color: #ff3300 !important; text-shadow: 0 0 10px #ff3300; }
+        .skin-neon .preview { box-shadow: 0 0 15px white; border: 2px solid white; filter: brightness(2); }
+
+        /* Retro */
+        body.skin-retro { background-color: #2d3436; font-family: 'Courier New', monospace; }
+        body.skin-retro .cube { border-radius: 0; border: 4px solid rgba(0,0,0,0.3); box-shadow: inset 4px 4px 0 rgba(255,255,255,0.4); }
+        .skin-retro .color-1 { background: #d63031; } .skin-retro .color-2 { background: #0984e3; }
+        .skin-retro .color-3 { background: #fdcb6e; color: #2d3436; text-shadow: none;}
+        .skin-retro .color-4 { background: #00b894; } .skin-retro .color-5 { background: #6c5ce7; }
+        .skin-retro .tnt { background: #636e72; border: 4px dashed #fab1a0; color: #fab1a0; }
+        .skin-retro .preview { border: 4px dotted white; transform: scale(1); filter: none; }
+
+        /* Pastello */
+        body.skin-candy { background-color: #dfe6e9; color: #2d3436; }
+        body.skin-candy .modal-box, body.skin-candy #start-menu, body.skin-candy #main-container { background-color: #f5f6fa; border: 2px solid #b2bec3; box-shadow: 5px 5px 0 #b2bec3; color: #2d3436; }
+        body.skin-candy .cube { border-radius: 12px; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        .skin-candy .color-1 { background: #ff4757; } 
+        .skin-candy .color-2 { background: #1e90ff; } 
+        .skin-candy .color-3 { background: #ffa502; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); } 
+        .skin-candy .color-4 { background: #2ed573; } 
+        .skin-candy .color-5 { background: #8e44ad; } 
+        .skin-candy .tnt { background: #2f3542; border-radius: 12px; border: 2px dashed #ff4757; color: #ff4757; }
+        .skin-candy .preview { border-radius: 12px; border: 3px solid #2d3436; filter: brightness(1.1); }
+
+        /* Foresta */
+        body.skin-forest { background-color: #3e4c36; color: #f1f2f6; }
+        body.skin-forest #start-menu, body.skin-forest #main-container { background-color: #596248; border: 2px solid #8f9e78; }
+        .skin-forest .cube { border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.3); }
+        .skin-forest .color-1 { background: #a04000; } .skin-forest .color-2 { background: #2874a6; }
+        .skin-forest .color-3 { background: #d4ac0d; color: #fff; } .skin-forest .color-4 { background: #1e8449; }
+        .skin-forest .color-5 { background: #7d3c98; } .skin-forest .tnt { background: #1a1a1a; border: 2px solid #a04000; color: #a04000; }
+        .skin-forest .preview { border: 2px solid #f1c40f; }
+
+        /* Notte */
+        body.skin-night { background-color: #121212; color: #bdc3c7; }
+        body.skin-night #start-menu, body.skin-night #main-container { background-color: #1e1e1e; border: 1px solid #333; }
+        .skin-night .cube { border-radius: 6px; }
+        .skin-night .color-1 { background: #c0392b; } .skin-night .color-2 { background: #2980b9; }
+        .skin-night .color-3 { background: #f39c12; color: #fff; } .skin-night .color-4 { background: #27ae60; }
+        .skin-night .color-5 { background: #8e44ad; } .skin-night .tnt { background: #000; border: 2px dashed #c0392b; color: #c0392b; }
+        .skin-night .preview { border: 2px solid #ecf0f1; filter: contrast(1.5); }
+
+        /* --- UI COMPONENTS --- */
         #start-menu {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             background-color: #34495e; border-radius: 20px;
@@ -41,7 +128,7 @@
         .game-logo {
             font-size: 40px; font-weight: 900; margin-bottom: 30px;
             text-transform: uppercase; letter-spacing: 2px;
-            text-shadow: 0 5px 0 #2c3e50; text-align: center;
+            text-shadow: 0 5px 0 rgba(0,0,0,0.2); text-align: center;
         }
         
         .menu-btn {
@@ -50,157 +137,93 @@
             padding: 15px 40px; width: 100%;
             border: none; border-radius: 50px;
             margin-bottom: 15px; cursor: pointer;
-            box-shadow: 0 5px 0 #d35400; transition: transform 0.1s;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.2); transition: transform 0.1s;
         }
         .menu-btn:active { transform: translateY(5px); box-shadow: none; }
-        .menu-btn.secondary { background: #1abc9c; box-shadow: 0 5px 0 #16a085; }
-        .menu-btn.info { background: #3498db; box-shadow: 0 5px 0 #2980b9; }
+        .menu-btn.secondary { background: #1abc9c; }
+        .menu-btn.shop { background: #9b59b6; }
+        .menu-btn.info { background: #3498db; }
+        .menu-btn.news { background: #e74c3c; }
 
         #main-container {
-            display: none; 
-            gap: 15px; padding: 15px;
+            display: none; gap: 15px; padding: 15px;
             background-color: #34495e; border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 2px solid #4e6a85;
-            flex-direction: column; align-items: center;
-            width: 500px; 
+            flex-direction: column; align-items: center; width: 500px; 
         }
 
+        #sidebar { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; width: 100%; gap: 8px; }
         @media (min-width: 850px) {
             #scaler-container { width: 850px; }
-            #main-container {
-                flex-direction: row; align-items: flex-start;
-                padding: 20px; gap: 20px; width: auto;
-            }
+            #main-container { flex-direction: row; align-items: flex-start; padding: 20px; gap: 20px; width: auto; }
+            #sidebar { flex-direction: column; width: 240px; flex-wrap: nowrap; gap: 12px; }
         }
 
-        #sidebar {
-            display: flex; flex-direction: row; flex-wrap: wrap;
-            justify-content: center; width: 100%; gap: 8px;
-        }
-        
-        @media (min-width: 850px) {
-            #sidebar {
-                flex-direction: column; width: 240px; flex-wrap: nowrap; gap: 12px;
-            }
-        }
-
-        .panel-title {
-            width: 100%; text-align: center; font-size: 24px; font-weight: 800;
-            color: #ecf0f1; margin-bottom: 2px; text-transform: uppercase;
-            letter-spacing: 1px; border-bottom: 4px solid #1abc9c; padding-bottom: 5px;
-        }
-
-        .stat-box {
-            background: #2c3e50; padding: 5px 8px;
-            border-radius: 8px; border-left: 4px solid #1abc9c;
-            min-width: 70px; text-align: center; flex-grow: 1;
-        }
-
-        .stat-label { font-size: 9px; color: #bdc3c7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;}
-        .stat-value { font-size: 18px; font-weight: bold; color: #f1c40f; line-height: 1.1;}
-        .danger-text { color: #e74c3c !important; animation: pulse 1s infinite; }
-
+        .panel-title { width: 100%; text-align: center; font-size: 24px; font-weight: 800; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 4px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
+        .stat-box { background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 8px; border-left: 4px solid #1abc9c; min-width: 70px; text-align: center; flex-grow: 1; }
+        .stat-label { font-size: 9px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;}
+        .stat-value { font-size: 18px; font-weight: bold; line-height: 1.1;}
         #timer-box { border-left-color: #e67e22; }
         #timer-display { font-family: 'Courier New', monospace; font-size: 22px; }
-
-        #mission-box { 
-            border-left-color: #9b59b6; display: flex; flex-direction: row; 
-            align-items: center; justify-content: center; gap: 8px; 
-            min-width: 110px; padding: 5px 10px;
-        }
+        #coin-box { border-left-color: #f1c40f; } .coin-val { color: #f1c40f; }
         
+        #mission-box { border-left-color: #9b59b6; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; min-width: 110px; padding: 5px 10px; }
         .mission-icon { width: 22px; height: 22px; border-radius: 4px; border: 2px solid white; flex-shrink: 0; }
-        .mission-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center;}
         .mission-target { font-size: 16px; font-weight: 900; line-height: 1; white-space: nowrap; }
-        .mission-success { border-left-color: #2ecc71; background-color: #273c2e; }
+        .mission-success { border-left-color: #2ecc71; background-color: rgba(46, 204, 113, 0.2); }
         .mission-success .mission-target { color: #2ecc71; }
 
         .controls { display: flex; gap: 8px; width: 100%; justify-content: center; margin-top: 5px; }
+        button { padding: 10px; font-size: 14px; background-color: rgba(255,255,255,0.1); color: inherit; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; }
+        button:active { transform: scale(0.95); background-color: rgba(255,255,255,0.2); }
+        .btn-music.active { background-color: #1abc9c; color: white; }
 
-        button {
-            padding: 10px; font-size: 14px; background-color: #576574;
-            color: white; border: none; border-radius: 8px; cursor: pointer;
-            font-weight: bold; flex: 1;
-        }
-        button:active { transform: scale(0.95); background-color: #8395a7; }
-        .btn-music.active { background-color: #1abc9c; }
-
-        #game-area {
-            position: relative; width: 500px; height: 500px; 
-            background-color: #222; border-radius: 12px;
-            border: 4px solid #2c3e50; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
-            touch-action: none; margin-top: 5px; 
-            cursor: pointer;
-        }
-
-        .cube {
-            width: 46px; height: 46px; border-radius: 8px;
-            position: absolute; display: flex; justify-content: center; align-items: center;
-            font-weight: bold; font-size: 20px; color: rgba(255,255,255,0.9);
-            box-sizing: border-box;
-            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                        left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                        transform 0.1s, opacity 0.2s;
-            pointer-events: none; 
-        }
-        
-        .color-1 { background: #ff6b6b; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
-        .color-2 { background: #48dbfb; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
-        .color-3 { background: #feca57; color: #2c3e50; text-shadow: none; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
-        .color-4 { background: #1dd1a1; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
-        .color-5 { background: #5f27cd; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
-
-        .tnt { background: #2d3436; color: #ff9f43; border: 2px dashed #ff9f43; z-index: 50; }
-        .tnt::after { content: "TNT"; font-weight: 900; font-size: 14px; }
-
-        .preview { filter: brightness(1.4); transform: scale(0.92); border: 3px solid white; z-index: 100;}
-        /* FIX Z-INDEX: Assicura che l'alone TNT sia sopra a tutto */
-        .tnt-range { filter: sepia(1) hue-rotate(-50deg) saturate(3); transform: scale(0.9); z-index: 200 !important; }
-        .imploding { transform: scale(0); opacity: 0; }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        #game-area { position: relative; width: 500px; height: 500px; background-color: rgba(0,0,0,0.2); border-radius: 12px; border: 4px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 30px rgba(0,0,0,0.2); touch-action: none; margin-top: 5px; cursor: pointer; }
 
         /* MODALI */
-        #modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
-            z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
+        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         #modal-overlay.visible { opacity: 1; pointer-events: all; }
-        .modal-box {
-            background: #ecf0f1; color: #2c3e50; padding: 20px; width: 320px;
-            border-radius: 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
+        .modal-box { background: #ecf0f1; color: #2c3e50; padding: 20px; width: 320px; border-radius: 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         .modal-title { font-size: 22px; font-weight: 900; margin-bottom: 10px; }
         .modal-text { font-size: 15px; margin-bottom: 20px; line-height: 1.4; }
-        .modal-btn { background: #e67e22; font-size: 16px; padding: 12px; width: 100%; border-radius: 8px; color: white; border: none; font-weight: bold;}
-        .rules-list { text-align: left; padding-left: 15px; font-size: 13px; }
-        .rules-list li { margin-bottom: 6px; }
+        .modal-btn { background: #e67e22; font-size: 16px; padding: 12px; width: 100%; border-radius: 8px; color: white; border: none; font-weight: bold; cursor: pointer; margin-bottom: 5px;}
+        .rules-list { text-align: left; padding-left: 15px; font-size: 13px; } .rules-list li { margin-bottom: 6px; }
+
+        /* INPUT FIELD */
+        .name-input { width: 80%; padding: 10px; font-size: 16px; margin: 10px 0; border-radius: 5px; border: 2px solid #ccc; text-align: center; }
+
+        /* SHOP ITEMS & RARITY */
+        .shop-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 5px solid #bdc3c7; }
+        .shop-item.owned { background: rgba(46, 204, 113, 0.1); border-color: #2ecc71; }
+        .shop-item.active { background: rgba(39, 174, 96, 0.2); border-color: #27ae60; }
+        
+        .rarity-comune { border-left-color: #bdc3c7; } .rarity-raro { border-left-color: #3498db; }
+        .rarity-epico { border-left-color: #9b59b6; } .rarity-leggendario { border-left-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); }
+        .rarity-tag { font-size: 10px; text-transform: uppercase; padding: 2px 5px; border-radius: 4px; color: white; margin-left: 5px; }
+        .bg-comune { background: #95a5a6; } .bg-raro { background: #3498db; }
+        .bg-epico { background: #9b59b6; } .bg-leggendario { background: #f1c40f; color: black; }
 
         /* POPUP LIVELLO */
-        #level-popup {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5);
-            background: rgba(44, 62, 80, 0.95); padding: 20px;
-            border-radius: 20px; border: 4px solid #9b59b6; text-align: center;
-            z-index: 1500; opacity: 0; pointer-events: none;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 50px rgba(155, 89, 182, 0.5);
-            display: flex; flex-direction: column; align-items: center; gap: 10px; width: 200px;
-        }
+        #level-popup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(44, 62, 80, 0.95); padding: 20px; border-radius: 20px; border: 4px solid #9b59b6; text-align: center; z-index: 1500; opacity: 0; pointer-events: none; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px rgba(155, 89, 182, 0.5); display: flex; flex-direction: column; align-items: center; gap: 10px; width: 200px; }
         #level-popup.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         .popup-title { color: #fff; font-size: 16px; text-transform: uppercase; letter-spacing: 2px;}
         .popup-icon { width: 50px; height: 50px; border-radius: 8px; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin: 5px 0;}
         .popup-target { color: #f1c40f; font-size: 36px; font-weight: 900; }
         .popup-desc { color: #bdc3c7; font-size: 12px; }
 
-        /* STATS TABLE */
-        .stats-table { width: 100%; text-align: left; margin-bottom: 20px; border-collapse: collapse; }
-        .stats-table td { padding: 8px; border-bottom: 1px solid #bdc3c7; }
-        .stats-table td:last-child { text-align: right; font-weight: bold; color: #1abc9c; }
+        /* CLASSIFICA E NEWS */
+        .stats-table { width: 100%; text-align: left; margin-bottom: 20px; border-collapse: collapse; font-size: 14px; }
+        .stats-table td { padding: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .stats-table td:last-child { text-align: right; font-weight: bold; }
+        .leaderboard-row:nth-child(1) { color: #f1c40f; font-weight: bold; }
+        .leaderboard-row:nth-child(2) { color: #bdc3c7; }
+        .leaderboard-row:nth-child(3) { color: #e67e22; }
+        
+        #global-counter-display { margin-top: 10px; font-size: 12px; color: #95a5a6; font-weight: bold; }
 
     </style>
 </head>
-<body>
+<body class="skin-default">
 
     <div id="modal-overlay">
         <div class="modal-box" id="modal-content"></div>
@@ -217,17 +240,24 @@
         <div id="start-menu">
             <div class="game-logo">Cubo<br><span style="color:#1abc9c">Logico</span></div>
             <button class="menu-btn" onclick="startGame()">GIOCA</button>
-            <button class="menu-btn secondary" onclick="showStats()">STATISTICHE</button>
-            <button class="menu-btn info" onclick="showInstructions(true)">REGOLE</button>
+            <button class="menu-btn secondary" onclick="showLeaderboard()">CLASSIFICA 🏆</button>
+            <button class="menu-btn info" onclick="showNews()">NOVITÀ 🔔</button>
+            <button class="menu-btn shop" onclick="openShop()">SHOP 🛒</button>
+            <div id="global-counter-display">Caricamento partite...</div>
         </div>
 
-        <div id="main-container">
+        <div id="main-container" class="skin-default">
             <div id="sidebar">
                 <div class="panel-title">Cubo <span style="color:#1abc9c">Logico</span></div>
                 
                 <div class="stat-box" id="timer-box">
                     <div class="stat-label">TEMPO</div>
                     <div class="stat-value" id="timer-display">90</div>
+                </div>
+
+                <div class="stat-box" id="coin-box">
+                    <div class="stat-label">MONETE</div>
+                    <div class="stat-value coin-val" id="coin-display">0</div>
                 </div>
 
                 <div class="stat-box" id="mission-box">
@@ -265,47 +295,219 @@
     </div>
 
     <script>
-        // --- STATISTICHE ---
-        let gameStats = { highScore: 0, maxLevel: 1, totalGames: 0 };
-        function loadStats() {
-            const saved = localStorage.getItem('cuboLogicoStats');
-            if (saved) gameStats = JSON.parse(saved);
+        // ==========================================
+        //  CONFIGURAZIONE FIREBASE
+        // ==========================================
+        const firebaseConfig = {
+          apiKey: "AIzaSyDJunanGI5iQtkFXO7f_QfeGa-rJQZFpK0",
+          authDomain: "cubo-logico.firebaseapp.com",
+          databaseURL: "https://cubo-logico-default-rtdb.firebaseio.com",
+          projectId: "cubo-logico",
+          storageBucket: "cubo-logico.firebasestorage.app",
+          messagingSenderId: "956055094088",
+          appId: "1:956055094088:web:d5874dd5a7ceb76e68a97d",
+          measurementId: "G-T5TMWH26YX"
+        };
+
+        // Inizializza Firebase
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            console.log("Firebase connesso!");
+        } catch(e) { 
+            console.error("Firebase Errore:", e);
+            if(firebase.apps.length) db = firebase.database();
         }
-        function saveStats() { localStorage.setItem('cuboLogicoStats', JSON.stringify(gameStats)); }
-        function showStats() {
-            loadStats();
-            const html = `
-                <div class="modal-title">LE TUE STATISTICHE</div>
-                <table class="stats-table">
-                    <tr><td>🏆 Record Punti</td><td>${gameStats.highScore}</td></tr>
-                    <tr><td>🚀 Livello Max</td><td>${gameStats.maxLevel}</td></tr>
-                    <tr><td>🎮 Partite Giocate</td><td>${gameStats.totalGames}</td></tr>
-                </table>
-                <button class="modal-btn" style="background:#e74c3c; margin-bottom:10px;" onclick="resetStats()">RESET DATI</button>
+
+
+        // --- DATI GIOCO E SHOP ---
+        const CURRENT_VERSION = "1.3";
+        let gameStats = { 
+            highScore: 0, 
+            maxLevel: 1, 
+            totalGames: 0, 
+            coins: 0, 
+            unlockedSkins: ['default'], 
+            currentSkin: 'default',
+            lastVersionSeen: null
+        };
+
+        const SKINS_DATA = {
+            'default': { name: 'Classico', price: 0, rarity: 'comune' },
+            'retro': { name: 'Retro Pixel', price: 150, rarity: 'raro' },
+            'candy': { name: 'Pastello', price: 150, rarity: 'raro' },
+            'forest': { name: 'Foresta', price: 400, rarity: 'epico' },
+            'night': { name: 'Notte', price: 400, rarity: 'epico' },
+            'neon': { name: 'Cyber Neon', price: 1000, rarity: 'leggendario' }
+        };
+
+        function loadStats() {
+            const saved = localStorage.getItem('cuboLogicoStatsV4'); 
+            if (saved) gameStats = JSON.parse(saved);
+            applySkin(gameStats.currentSkin);
+        }
+        function saveStats() { localStorage.setItem('cuboLogicoStatsV4', JSON.stringify(gameStats)); }
+
+        // --- GESTIONE CONTATORE GLOBALE ---
+        function initGlobalCounter() {
+            if(!db) {
+                document.getElementById('global-counter-display').style.display = 'none';
+                return;
+            }
+            const globalRef = db.ref('globalStats/totalGames');
+            globalRef.on('value', (snapshot) => {
+                const count = snapshot.val() || 0;
+                document.getElementById('global-counter-display').innerText = `Partite Collettive: ${count.toLocaleString()}`;
+            });
+        }
+        // Avvia l'ascolto appena la pagina carica
+        initGlobalCounter();
+
+        function incrementGlobalGames() {
+            if(!db) return;
+            const globalRef = db.ref('globalStats/totalGames');
+            globalRef.transaction((current) => {
+                return (current || 0) + 1;
+            });
+        }
+
+        // --- SISTEMA NOVITÀ ---
+        function showNews() {
+            const newsHtml = `
+                <div class="modal-title">COSA C'È DI NUOVO</div>
+                <div class="modal-text" style="text-align:left;">
+                    <p><b>✨ Nuove Skin</b><br>Scopri i nuovi temi nello Shop!</p>
+                    <p><b>🏆 Classifica</b><br>Sfida gli amici e batti i record</p>
+                    <p><b>💰 Monete</b><br>Guadagna le monete giocando</p>
+                    <p><b>🛠️ Miglioramenti</b><br>TNT potenziata.</p>
+                </div>
                 <button class="modal-btn" onclick="closeModal()">CHIUDI</button>
             `;
+            document.getElementById('modal-content').innerHTML = newsHtml;
+            document.getElementById('modal-overlay').classList.add('visible');
+            gameStats.lastVersionSeen = CURRENT_VERSION;
+            saveStats();
+        }
+
+        // --- SISTEMA CLASSIFICA ONLINE ---
+        function showLeaderboard() {
+            if (!db) {
+                alert("Errore di connessione a Firebase.");
+                return;
+            }
+
+            document.getElementById('modal-content').innerHTML = `
+                <div class="modal-title">CLASSIFICA MONDIALE 🌎</div>
+                <div class="modal-text">Caricamento...</div>
+                <button class="modal-btn" onclick="closeModal()">CHIUDI</button>
+            `;
+            document.getElementById('modal-overlay').classList.add('visible');
+
+            // Scarica dati (Top 10 punteggi più alti)
+            db.ref('leaderboard').orderByChild('score').limitToLast(10).once('value')
+                .then((snapshot) => {
+                    let scores = [];
+                    snapshot.forEach((child) => {
+                        scores.push(child.val());
+                    });
+                    scores.reverse(); // Dal più alto al più basso
+
+                    let listHtml = "";
+                    if(scores.length === 0) {
+                        listHtml = "<tr><td colspan='3'>Nessun punteggio ancora!</td></tr>";
+                    } else {
+                        scores.forEach((s, i) => {
+                            listHtml += `<tr class="leaderboard-row"><td>#${i+1}</td><td>${s.name.substring(0,12)}</td><td>${s.score}</td></tr>`;
+                        });
+                    }
+
+                    const html = `
+                        <div class="modal-title">CLASSIFICA MONDIALE 🌎</div>
+                        <table class="stats-table">
+                            <tr><th>Pos</th><th>Nome</th><th>Punti</th></tr>
+                            ${listHtml}
+                        </table>
+                        <button class="modal-btn" onclick="closeModal()">CHIUDI</button>
+                    `;
+                    document.getElementById('modal-content').innerHTML = html;
+                });
+        }
+
+        function saveScoreOnline(playerName, score) {
+            if (!db) return;
+            // Salva su Firebase
+            db.ref('leaderboard').push({
+                name: playerName,
+                score: score,
+                date: Date.now()
+            });
+        }
+
+        // --- SHOP SYSTEM ---
+        function openShop() {
+            let html = `<div class="modal-title">NEGOZIO 🛒</div>`;
+            html += `<p>Le tue monete: <b style="color:#f1c40f">${gameStats.coins} 💰</b></p>`;
+            html += `<div style="max-height: 300px; overflow-y: auto;">`;
+            
+            for (const [id, data] of Object.entries(SKINS_DATA)) {
+                const owned = gameStats.unlockedSkins.includes(id);
+                const active = gameStats.currentSkin === id;
+                let btnHtml = '';
+                
+                if (active) btnHtml = '<span style="color:#27ae60; font-weight:bold;">ATTIVO</span>';
+                else if (owned) btnHtml = `<button class="modal-btn" style="width:auto; padding:5px 15px; background:#3498db;" onclick="equipSkin('${id}')">USA</button>`;
+                else btnHtml = `<button class="modal-btn" style="width:auto; padding:5px 15px;" onclick="buySkin('${id}')">${data.price} 💰</button>`;
+
+                html += `
+                    <div class="shop-item rarity-${data.rarity} ${active ? 'active' : (owned ? 'owned' : '')}">
+                        <div style="display:flex; align-items:center;">
+                            <span>${data.name}</span>
+                            <span class="rarity-tag bg-${data.rarity}">${data.rarity}</span>
+                        </div>
+                        ${btnHtml}
+                    </div>
+                `;
+            }
+            html += `</div><button class="modal-btn" style="margin-top:10px" onclick="closeModal()">CHIUDI</button>`;
             document.getElementById('modal-content').innerHTML = html;
             document.getElementById('modal-overlay').classList.add('visible');
         }
-        function resetStats() {
-            if(confirm("Cancellare tutte le statistiche?")) {
-                gameStats = { highScore: 0, maxLevel: 1, totalGames: 0 };
-                saveStats(); showStats();
+
+        function buySkin(id) {
+            const price = SKINS_DATA[id].price;
+            if (gameStats.coins >= price) {
+                gameStats.coins -= price;
+                gameStats.unlockedSkins.push(id);
+                saveStats();
+                playSound('success');
+                openShop();
+            } else {
+                alert("Non hai abbastanza monete!");
+                playSound('error');
             }
         }
 
-        // --- SCALING INTELLIGENTE ---
+        function equipSkin(id) {
+            gameStats.currentSkin = id;
+            saveStats();
+            applySkin(id);
+            openShop();
+        }
+
+        function applySkin(id) {
+            document.body.className = `skin-${id}`;
+        }
+
+        // --- SCALING ---
         function resizeGame() {
             try {
                 const container = document.getElementById('scaler-container');
                 const winW = window.innerWidth;
                 const winH = window.innerHeight;
-                let baseWidth, baseHeight;
-                if (winW >= 850) { baseWidth = 850; baseHeight = 600; } 
-                else { baseWidth = 540; baseHeight = 850; }
-                const scaleX = winW / baseWidth;
-                const scaleY = winH / baseHeight;
-                let scale = Math.min(scaleX, scaleY) * 0.95; 
+                let baseWidth = winW >= 850 ? 850 : 540;
+                let baseHeight = winW >= 850 ? 600 : 850;
+                let scale = Math.min(winW / baseWidth, winH / baseHeight) * 0.95;
                 if (scale > 1.2) scale = 1.2;
                 if (scale < 0.4) scale = 0.4;
                 container.style.transform = `scale(${scale})`;
@@ -315,24 +517,17 @@
         window.addEventListener('load', () => { setTimeout(resizeGame, 50); loadStats(); });
 
         // --- GAME CORE ---
-        const rows = 10;
-        const cols = 10;
-        const cellSize = 50;
-        const TNT_VALUE = 9; 
-        const TIME_PER_LEVEL = 90; 
-        const MISSION_BONUS = 1000; 
-        const LEVEL_BONUS = 10000; 
+        const rows = 10, cols = 10, cellSize = 50, TNT_VALUE = 9, TIME_PER_LEVEL = 90;
+        const MISSION_BONUS = 1000, LEVEL_BONUS = 10000;
 
-        let blocks = [];
-        let score = 0; let bonusLives = 10; let level = 1;
-        let isAnimating = false; let nextBlockId = 0;
+        let blocks = [], score = 0, bonusLives = 10, level = 1, isAnimating = false, nextBlockId = 0;
         let currentMission = { color: 1, targetSize: 0, completed: false };
-        let timeRemaining = TIME_PER_LEVEL; let timerInterval = null;
-        let lastHoveredBlock = null; let isTouchActive = false;
-        let consecutiveMissions = 0;
+        let timeRemaining = TIME_PER_LEVEL, timerInterval = null;
+        let lastHoveredBlock = null, isTouchActive = false;
+        let consecutiveMissions = 0, startLevelLives = 10;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let isMusicPlaying = false; let musicStarted = false; let ambientInterval = null;
+        let isMusicPlaying = false, musicStarted = false, ambientInterval = null;
         const melodyNotes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
 
         document.addEventListener("visibilitychange", () => {
@@ -347,14 +542,10 @@
         gameArea.addEventListener('mousemove', handleMouseMove);
         gameArea.addEventListener('click', handleMouseClick);
 
-        const startMenu = document.getElementById('start-menu');
-        const mainContainer = document.getElementById('main-container');
-
-        // --- MENU E AVVIO ---
         function startGame() {
-            startMenu.style.display = 'none'; 
-            mainContainer.style.display = 'flex'; 
-            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            document.getElementById('start-menu').style.display = 'none';
+            document.getElementById('main-container').style.display = 'flex';
+            if (audioCtx.state === 'suspended') audioCtx.resume();
 
             const tutorialSeen = localStorage.getItem('cuboLogicoTutorialSeen');
             if (!tutorialSeen) {
@@ -368,31 +559,31 @@
         }
 
         function runGameLogic() {
+            // INCREMENTA CONTATORE GLOBALE
+            incrementGlobalGames();
+
             gameStats.totalGames++; saveStats();
             level = 1; score = 0; bonusLives = 10; consecutiveMissions = 0;
             if (!musicStarted) { toggleMusic(true); musicStarted = true; }
             setTimeout(() => { resizeGame(); initGame(); }, 50);
         }
 
-        function confirmHome() {
-            if(confirm("Vuoi davvero tornare al menu? La partita andrà persa.")) {
-                goToMenu();
-            }
-        }
-
+        function confirmHome() { if(confirm("Vuoi davvero tornare al menu?")) goToMenu(); }
         function goToMenu() {
             if (timerInterval) clearInterval(timerInterval);
-            mainContainer.style.display = 'none'; startMenu.style.display = 'flex'; 
+            document.getElementById('main-container').style.display = 'none'; 
+            document.getElementById('start-menu').style.display = 'flex'; 
             resizeGame(); 
         }
-
+        function confirmRestart() { if(confirm("Ricominciare la partita?")) { level=1; score=0; bonusLives=10; consecutiveMissions=0; initGame(); } }
         function closeModal() { document.getElementById('modal-overlay').classList.remove('visible'); }
-        
+
         function showModal(type, title, text, btnText, action) {
-            let html = `<div class="modal-title">${title}</div><div class="modal-text">${type==='rules'?`<ul class="rules-list">${text}</ul>`:text}</div>`;
-            html += `<button class="modal-btn" id="modal-action-btn">${btnText || 'CHIUDI'}</button>`;
-            const content = document.getElementById('modal-content');
-            content.innerHTML = html;
+            document.getElementById('modal-content').innerHTML = `
+                <div class="modal-title">${title}</div>
+                <div class="modal-text">${type==='rules'?`<ul class="rules-list">${text}</ul>`:text}</div>
+                <button class="modal-btn" id="modal-action-btn">${btnText || 'CHIUDI'}</button>
+            `;
             document.getElementById('modal-overlay').classList.add('visible');
             document.getElementById('modal-action-btn').onclick = () => {
                 document.getElementById('modal-overlay').classList.remove('visible');
@@ -403,17 +594,13 @@
         function showInstructions(fromMenu = false, customAction = null) {
             const wasRunning = (timerInterval !== null);
             if (wasRunning && !fromMenu) clearInterval(timerInterval);
-            
-            // AGGIORNATO CON ISTRUZIONI PC/SMARTPHONE
             const rules = `
-                <li>🖥️ <b>PC:</b> Usa il Mouse. Passa sopra per l'anteprima, clicca per distruggere.</li>
-                <li>📱 <b>Smartphone:</b> Tocca e tieni premuto per l'anteprima, rilascia per distruggere.</li>
+                <li>🖥️ <b>PC:</b> Clicca sui gruppi per distruggere.</li>
+                <li>📱 <b>Mobile:</b> Tieni premuto per vedere i numeri, rilascia per distruggere.</li>
                 <li>🏆 <b>Obiettivo:</b> Elimina i cubi entro il tempo!</li>
                 <li>💔 <b>Bonus:</b> Cliccare su un cubo isolato toglie 10%. A 0% perdi.</li>
-                <li>❤️ <b>Recupero:</b> Completa 3 obiettivi di fila per recuperare 10% Bonus!</li>
-                <li>🧨 <b>TNT:</b> I cubi TNT ti aiutano a rimuovere cubi singoli senza consumare bonus</li>
+                <li>🧨 <b>TNT:</b>Distrugge fino a 16 cubi.</li>
             `;
-            
             const btnLabel = customAction ? 'INIZIA' : (fromMenu ? 'OK' : 'RIPRENDI');
             const finalAction = customAction ? customAction : () => { if(wasRunning && blocks.length>0) startTimer(); };
             showModal('rules', 'Regole', rules, btnLabel, finalAction);
@@ -421,20 +608,20 @@
 
         // --- GAME LOGIC ---
         function initGame() {
-            gameArea.innerHTML = ''; blocks = []; lastHoveredBlock = null;
+            const area = document.getElementById('game-area');
+            area.innerHTML = ''; blocks = []; lastHoveredBlock = null;
+            startLevelLives = bonusLives;
+
             let numColors = Math.min(level + 1, 5); 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) { createBlock(r, c, Math.floor(Math.random() * numColors) + 1); }
             }
             
-            let tntCount = 2;
-            let assignedTNT = 0;
+            let tntCount = 2; let assignedTNT = 0;
             while(assignedTNT < tntCount) {
                 const idx = Math.floor(Math.random() * blocks.length);
                 if (blocks[idx].color !== TNT_VALUE) {
-                    blocks[idx].color = TNT_VALUE;
-                    updateBlockVisual(blocks[idx]);
-                    assignedTNT++;
+                    blocks[idx].color = TNT_VALUE; updateBlockVisual(blocks[idx]); assignedTNT++;
                 }
             }
 
@@ -447,7 +634,7 @@
         function createBlock(r, c, color) {
             const el = document.createElement('div'); el.classList.add('cube');
             const block = { id: nextBlockId++, r, c, color, element: el };
-            updateBlockVisual(block); gameArea.appendChild(el); blocks.push(block);
+            updateBlockVisual(block); document.getElementById('game-area').appendChild(el); blocks.push(block);
         }
 
         function updateBlockVisual(block) {
@@ -479,8 +666,8 @@
                 if (timeRemaining < 20) document.getElementById('timer-display').style.color = '#e74c3c';
                 if (timeRemaining <= 0) {
                     clearInterval(timerInterval); playSound('gameover');
-                    if(score>gameStats.highScore){gameStats.highScore=score; saveStats();}
-                    showModal('info', 'Tempo Scaduto!', `Punti: ${score}<br>Record: ${gameStats.highScore}`, 'Menu', goToMenu);
+                    saveStats();
+                    gameOverSequence(); // SEQUENZA GAME OVER
                 }
             }, 1000);
         }
@@ -495,41 +682,24 @@
             return blocks.find(b => b.r === r && b.c === c);
         }
 
-        function handleTouchStart(e) { e.preventDefault(); isTouchActive = true; if(isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b){ previewBlock(b); lastHoveredBlock=b; } }
+        function handleTouchStart(e) { e.preventDefault(); if(isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b){ previewBlock(b); lastHoveredBlock=b; } }
         function handleTouchMove(e) { e.preventDefault(); if(isAnimating) return; const b = getBlockFromEvent(e); if(b && b!==lastHoveredBlock){ previewBlock(b); lastHoveredBlock=b; } else if(!b){ clearHighlights(); lastHoveredBlock=null; } }
-        function handleTouchEnd(e) { e.preventDefault(); if(isAnimating) return; if(lastHoveredBlock){ executeMove(lastHoveredBlock); lastHoveredBlock=null; clearHighlights(); } setTimeout(()=>{isTouchActive=false},500); }
-        function handleMouseMove(e) { if(isTouchActive || isAnimating) return; const b = getBlockFromEvent(e); if(b) previewBlock(b); else clearHighlights(); }
-        function handleMouseClick(e) { if(isTouchActive || isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b) executeMove(b); }
+        function handleTouchEnd(e) { e.preventDefault(); if(isAnimating) return; if(lastHoveredBlock){ executeMove(lastHoveredBlock); lastHoveredBlock=null; clearHighlights(); } }
+        function handleMouseMove(e) { if(isAnimating) return; const b = getBlockFromEvent(e); if(b) previewBlock(b); else clearHighlights(); }
+        function handleMouseClick(e) { if(isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b) executeMove(b); }
 
-        // --- SISTEMA CALCOLO TARGETS ROBUSTO (RADAR) ---
-        // Funzione unificata che calcola distruzione e reazioni a catena
         function calculateDestructionSet(startBlock) {
-            if (startBlock.color !== TNT_VALUE) {
-                // Logica normale (colori)
-                return { targets: getMatches(startBlock.r, startBlock.c, startBlock.color), tntExploded: 0 };
-            }
-
-            // Logica TNT: Reazione a Catena
-            let tntQueue = [startBlock];
-            let explodedTNTs = new Set();
-            let allTargetsMap = new Map();
-
+            if (startBlock.color !== TNT_VALUE) return { targets: getMatches(startBlock.r, startBlock.c, startBlock.color), tntExploded: 0 };
+            let tntQueue = [startBlock], explodedTNTs = new Set(), allTargetsMap = new Map();
             while(tntQueue.length > 0) {
                 let current = tntQueue.pop();
                 if(explodedTNTs.has(current.id)) continue;
-                
-                explodedTNTs.add(current.id);
-                allTargetsMap.set(current.id, current);
-
-                // RADAR 5x5: Scansiona TUTTI i blocchi e trova quelli nel raggio
+                explodedTNTs.add(current.id); allTargetsMap.set(current.id, current);
+                // RADAR 5x5
                 let nearby = blocks.filter(b => Math.abs(b.r - current.r) <= 2 && Math.abs(b.c - current.c) <= 2);
-                
                 nearby.forEach(b => {
-                    // Se trovi un'altra TNT non ancora esplosa, aggiungila alla coda
-                    if(b.color === TNT_VALUE && !explodedTNTs.has(b.id)) {
-                        tntQueue.push(b); 
-                    }
-                    allTargetsMap.set(b.id, b); // Distruggi tutto ciò che è nel raggio
+                    if(b.color === TNT_VALUE && !explodedTNTs.has(b.id)) tntQueue.push(b);
+                    allTargetsMap.set(b.id, b);
                 });
             }
             return { targets: Array.from(allTargetsMap.values()), tntExploded: explodedTNTs.size };
@@ -538,14 +708,11 @@
         function previewBlock(block) {
             clearHighlights();
             let result = calculateDestructionSet(block);
-            let related = result.targets;
-            
-            related.forEach(b => { 
+            result.targets.forEach(b => { 
                 b.element.classList.add(block.color===TNT_VALUE?'tnt-range':'preview'); 
-                if(block.color!==TNT_VALUE) b.element.innerText = related.length; 
+                if(block.color!==TNT_VALUE) b.element.innerText = result.targets.length; 
             });
         }
-        
         function clearHighlights() { blocks.forEach(b => { b.element.classList.remove('preview', 'tnt-range'); if(b.color!==TNT_VALUE) b.element.innerText = ''; }); }
 
         function getMatches(r, c, color) {
@@ -561,21 +728,15 @@
         }
 
         function executeMove(block) {
-            // Usa la STESSA logica del preview per coerenza totale
             let result = calculateDestructionSet(block);
             let targets = result.targets;
-
             if (block.color === TNT_VALUE) {
-                playSound('boom'); 
-                score += 50 * result.tntExploded;
+                playSound('boom'); score += 50 * result.tntExploded;
             } else {
                 if (targets.length > 1) {
                     score += Math.floor(targets.length * targets.length * 2.3);
                     if (!currentMission.completed && block.color === currentMission.color && targets.length === currentMission.targetSize) {
-                        currentMission.completed = true; 
-                        score += MISSION_BONUS; 
-                        playSound('success'); 
-                        updateMissionUI();
+                        currentMission.completed = true; score += MISSION_BONUS; playSound('success'); updateMissionUI();
                     } else playSound('pop');
                 } else {
                     if (bonusLives > 0) { bonusLives--; playSound('error'); }
@@ -590,7 +751,6 @@
             const idsToRemove = new Set(targets.map(b => b.id));
             targets.forEach(b => { b.element.classList.add('imploding'); setTimeout(() => { if(b.element.parentNode) b.element.parentNode.removeChild(b.element); }, 300); });
             blocks = blocks.filter(b => !idsToRemove.has(b.id));
-
             for (let c = 0; c < cols; c++) {
                 let colBlocks = blocks.filter(b => b.c === c).sort((a,b) => b.r - a.r);
                 let cur = rows - 1;
@@ -609,43 +769,83 @@
             if (blocks.length === 0) {
                 clearInterval(timerInterval); playSound('pop');
                 score += LEVEL_BONUS; 
+                let livesLost = startLevelLives - bonusLives;
+                let coinsEarned = Math.max(0, 10 - livesLost);
+                if (livesLost === 0) coinsEarned += 5;
+                if (currentMission.completed) coinsEarned += 5;
+                if (level > 5) coinsEarned += 5;
+                gameStats.coins += coinsEarned;
+
                 if (currentMission.completed) {
                     consecutiveMissions++;
-                    if (consecutiveMissions >= 3) {
-                        consecutiveMissions = 0; 
-                        if (bonusLives < 10) { bonusLives++; alert("BONUS RECUPERATO! (+10%)"); }
-                    }
+                    if (consecutiveMissions >= 3) { consecutiveMissions = 0; if (bonusLives < 10) { bonusLives++; alert("BONUS RECUPERATO! (+10%)"); } }
                 } else { consecutiveMissions = 0; }
 
-                if(level >= gameStats.maxLevel) { gameStats.maxLevel = level + 1; saveStats(); }
-                showModal('info', `Livello ${level} Finito!`, `Punti: ${score}<br>${currentMission.completed?'<span style="color:#2ecc71">OBIETTIVO +1000!</span>':'Obiettivo Fallito'}`, 'Avanti', () => { level++; initGame(); });
+                if(level >= gameStats.maxLevel) { gameStats.maxLevel = level + 1; }
+                saveStats();
+                
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="modal-title">LIVELLO ${level} FINITO!</div>
+                    <p>Punti: ${score}</p>
+                    <p style="color:#f1c40f; font-weight:bold; font-size:18px;">+${coinsEarned} MONETE 💰</p>
+                    <p>${currentMission.completed?'<span style="color:#2ecc71">OBIETTIVO!</span>':'Obiettivo Fallito'}</p>
+                    <button class="modal-btn" onclick="nextLevel()">AVANTI</button>
+                `;
+                document.getElementById('modal-overlay').classList.add('visible');
             }
         }
-
-        function gameOverSequence() {
-            isAnimating = true; clearInterval(timerInterval);
-            if (score > gameStats.highScore) { gameStats.highScore = score; saveStats(); }
-            showModal('info', 'GAME OVER', `Bonus esaurito.<br>Totale: ${score}`, 'Menu', goToMenu);
+        
+        function nextLevel() {
+            document.getElementById('modal-overlay').classList.remove('visible');
+            level++;
+            initGame();
         }
 
-        function confirmRestart() { if(confirm("Ricominciare la partita? I progressi attuali andranno persi.")) { 
-            level=1; score=0; bonusLives=10; consecutiveMissions=0; initGame(); 
-        } }
-        
+        // --- GESTIONE GAME OVER (CON FIREBASE) ---
+        function gameOverSequence() {
+            isAnimating = true; clearInterval(timerInterval);
+            
+            // SE FIREBASE ATTIVO: CHIEDI NOME
+            if (db) {
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="modal-title">GAME OVER</div>
+                    <p>Punteggio: ${score}</p>
+                    <input type="text" id="playerName" class="name-input" placeholder="Il tuo nome" maxlength="10">
+                    <button class="modal-btn" onclick="submitScore()">INVIA PUNTEGGIO</button>
+                    <button class="modal-btn" onclick="location.reload()">MENU</button>
+                `;
+            } else {
+                // SOLO LOCALE
+                if (score > gameStats.highScore) gameStats.highScore = score;
+                saveStats();
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="modal-title">GAME OVER</div>
+                    <p>Bonus esaurito.</p>
+                    <p>Totale: ${score}</p>
+                    <button class="modal-btn" onclick="location.reload()">MENU</button>
+                `;
+            }
+            document.getElementById('modal-overlay').classList.add('visible');
+        }
+
+        function submitScore() {
+            const name = document.getElementById('playerName').value || "Anonimo";
+            saveScoreOnline(name, score);
+            // Dopo aver salvato, ricarica per tornare al menu pulito
+            setTimeout(() => location.reload(), 1000);
+        }
+
         function updateUI() {
             document.getElementById('score-display').textContent = score;
             document.getElementById('lives-display').textContent = (bonusLives * 10) + "%";
             document.getElementById('level-display').textContent = level;
+            document.getElementById('coin-display').textContent = gameStats.coins;
         }
 
-        // --- AUDIO ---
         function toggleMusic(forceStart = false) {
             const btn = document.getElementById('music-btn'); 
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            if (forceStart) { 
-                if (!isMusicPlaying) { ambientInterval = setInterval(playAmbientNote, 400); isMusicPlaying = true; btn.textContent = "🔇"; btn.classList.add('active'); } 
-                return; 
-            }
+            if (forceStart) { if (!isMusicPlaying) { ambientInterval = setInterval(playAmbientNote, 400); isMusicPlaying = true; btn.textContent = "🔇"; btn.classList.add('active'); } return; }
             if (isMusicPlaying) { clearInterval(ambientInterval); isMusicPlaying = false; btn.textContent = "🎵"; btn.classList.remove('active'); } 
             else { ambientInterval = setInterval(playAmbientNote, 400); isMusicPlaying = true; btn.textContent = "🔇"; btn.classList.add('active'); }
         }
