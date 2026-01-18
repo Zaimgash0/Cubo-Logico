@@ -126,10 +126,27 @@
         }
         
         .game-logo {
-            font-size: 40px; font-weight: 900; margin-bottom: 30px;
+            font-size: 40px; font-weight: 900; margin-bottom: 20px;
             text-transform: uppercase; letter-spacing: 2px;
             text-shadow: 0 5px 0 rgba(0,0,0,0.2); text-align: center;
         }
+
+        /* --- NUOVE STATISTICHE MENU --- */
+        .menu-stats-container {
+            display: flex; flex-direction: row; justify-content: space-between;
+            width: 100%; margin-bottom: 20px;
+            background: rgba(0,0,0,0.2); border-radius: 12px;
+            padding: 10px 0;
+        }
+        .menu-stat-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            flex: 1; border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .menu-stat-item:last-child { border-right: none; }
+        /* Label solida bianca per massima leggibilità */
+        .menu-stat-label { font-size: 10px; text-transform: uppercase; color: #bdc3c7; letter-spacing: 0.5px; margin-bottom: 2px; font-weight: bold;}
+        /* Valore colore più solido */
+        .menu-stat-value { font-size: 18px; font-weight: 900; color: #2ecc71; text-shadow: 0 2px 0 rgba(0,0,0,0.3); }
         
         .menu-btn {
             background: #e67e22; color: white;
@@ -144,6 +161,7 @@
         .menu-btn.shop { background: #9b59b6; }
         .menu-btn.info { background: #3498db; }
         .menu-btn.news { background: #e74c3c; }
+        .menu-btn.rules { background: #7f8c8d; }
 
         #main-container {
             display: none; gap: 15px; padding: 15px;
@@ -215,11 +233,15 @@
         .stats-table { width: 100%; text-align: left; margin-bottom: 20px; border-collapse: collapse; font-size: 14px; }
         .stats-table td { padding: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); }
         .stats-table td:last-child { text-align: right; font-weight: bold; }
-        .leaderboard-row:nth-child(1) { color: #f1c40f; font-weight: bold; }
-        .leaderboard-row:nth-child(2) { color: #bdc3c7; }
-        .leaderboard-row:nth-child(3) { color: #e67e22; }
         
-        #global-counter-display { margin-top: 10px; font-size: 12px; color: #95a5a6; font-weight: bold; }
+        /* COLORI CLASSIFICA SCURI PER SFONDO CHIARO - CORRETTI */
+        /* La riga 1 è l'header, quindi iniziamo da nth-child(2) */
+        .stats-table tr:nth-child(2) { color: #b7950b; font-weight: 900; } /* ORO SCURO */
+        .stats-table tr:nth-child(3) { color: #5f6a6a; font-weight: bold; } /* ARGENTO/ARDESIA */
+        .stats-table tr:nth-child(4) { color: #a04000; font-weight: bold; } /* BRONZO/RUGGINE */
+        .stats-table tr { color: #2c3e50; }
+        
+        #global-counter-display { margin-top: 10px; font-size: 12px; color: #bdc3c7; font-weight: bold; opacity: 1; }
 
     </style>
 </head>
@@ -239,10 +261,27 @@
     <div id="scaler-container">
         <div id="start-menu">
             <div class="game-logo">Cubo<br><span style="color:#1abc9c">Logico</span></div>
+            
+            <div class="menu-stats-container">
+                <div class="menu-stat-item">
+                    <div class="menu-stat-label">Record</div>
+                    <div class="menu-stat-value" id="menu-highscore">0</div>
+                </div>
+                <div class="menu-stat-item">
+                    <div class="menu-stat-label">Max Liv</div>
+                    <div class="menu-stat-value" id="menu-maxlevel">1</div>
+                </div>
+                <div class="menu-stat-item">
+                    <div class="menu-stat-label">Partite</div>
+                    <div class="menu-stat-value" id="menu-games">0</div>
+                </div>
+            </div>
+
             <button class="menu-btn" onclick="startGame()">GIOCA</button>
             <button class="menu-btn secondary" onclick="showLeaderboard()">CLASSIFICA 🏆</button>
             <button class="menu-btn info" onclick="showNews()">NOVITÀ 🔔</button>
             <button class="menu-btn shop" onclick="openShop()">SHOP 🛒</button>
+            <button class="menu-btn rules" onclick="showInstructions(true)">REGOLE 📜</button>
             <div id="global-counter-display">Caricamento partite...</div>
         </div>
 
@@ -296,29 +335,37 @@
 
     <script>
         // ==========================================
-        //  CONFIGURAZIONE FIREBASE
+        //  CONFIGURAZIONE FIREBASE (OSCURATA)
         // ==========================================
-        const firebaseConfig = {
-          apiKey: "AIzaSyDJunanGI5iQtkFXO7f_QfeGa-rJQZFpK0",
-          authDomain: "cubo-logico.firebaseapp.com",
-          databaseURL: "https://cubo-logico-default-rtdb.firebaseio.com",
-          projectId: "cubo-logico",
-          storageBucket: "cubo-logico.firebasestorage.app",
-          messagingSenderId: "956055094088",
-          appId: "1:956055094088:web:d5874dd5a7ceb76e68a97d",
-          measurementId: "G-T5TMWH26YX"
-        };
-
-        // Inizializza Firebase
         let db = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            console.log("Firebase connesso!");
-        } catch(e) { 
-            console.error("Firebase Errore:", e);
-            if(firebase.apps.length) db = firebase.database();
-        }
+        
+        (function() {
+            // Decodifica runtime per evitare visibilità immediata nell'ispezione elementi
+            const _d = (s) => atob(s);
+            
+            // Chiavi originali in Base64
+            const cfg = {
+              apiKey: _d("QUl6YVN5REp1bmFuR0k1aVF0a0ZYTzdmX1FmZUdhLXJKUVpGcEsw"),
+              authDomain: _d("Y3Viby1sb2dpY28uZmlyZWJhc2VhcHAuY29t"),
+              databaseURL: _d("aHR0cHM6Ly9jdWJvLWxvZ2ljby1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20="),
+              projectId: _d("Y3Viby1sb2dpY28="),
+              storageBucket: _d("Y3Viby1sb2dpY28uZmlyZWJhc2VzdG9yYWdlLmFwcA=="),
+              messagingSenderId: _d("OTU2MDU1MDk0MDg4"),
+              appId: _d("MTo5NTYwNTUwOTQwODg6d2ViOmQ1ODc0ZGQ1YTdjZWI3NmU2OGE5N2Q="),
+              measurementId: _d("Ry1UNVRNV0gyNllY")
+            };
+
+            // Inizializza Firebase
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(cfg);
+                }
+                db = firebase.database();
+                console.log("Sistema connesso.");
+            } catch(e) { 
+                console.error("Connessione DB fallita:", e);
+            }
+        })();
 
 
         // --- DATI GIOCO E SHOP ---
@@ -346,8 +393,21 @@
             const saved = localStorage.getItem('cuboLogicoStatsV4'); 
             if (saved) gameStats = JSON.parse(saved);
             applySkin(gameStats.currentSkin);
+            updateMenuStats();
         }
-        function saveStats() { localStorage.setItem('cuboLogicoStatsV4', JSON.stringify(gameStats)); }
+        function saveStats() { 
+            localStorage.setItem('cuboLogicoStatsV4', JSON.stringify(gameStats)); 
+            updateMenuStats();
+        }
+
+        // --- AGGIORNAMENTO STATISTICHE MENU ---
+        function updateMenuStats() {
+            if(document.getElementById('menu-highscore')) {
+                document.getElementById('menu-highscore').innerText = gameStats.highScore;
+                document.getElementById('menu-maxlevel').innerText = gameStats.maxLevel;
+                document.getElementById('menu-games').innerText = gameStats.totalGames;
+            }
+        }
 
         // --- GESTIONE CONTATORE GLOBALE ---
         function initGlobalCounter() {
@@ -573,6 +633,7 @@
             if (timerInterval) clearInterval(timerInterval);
             document.getElementById('main-container').style.display = 'none'; 
             document.getElementById('start-menu').style.display = 'flex'; 
+            loadStats(); // Ricarica le stats
             resizeGame(); 
         }
         function confirmRestart() { if(confirm("Ricominciare la partita?")) { level=1; score=0; bonusLives=10; consecutiveMissions=0; initGame(); } }
@@ -602,7 +663,7 @@
                 <li>🧨 <b>TNT:</b>Distrugge fino a 16 cubi.</li>
             `;
             const btnLabel = customAction ? 'INIZIA' : (fromMenu ? 'OK' : 'RIPRENDI');
-            const finalAction = customAction ? customAction : () => { if(wasRunning && blocks.length>0) startTimer(); };
+            const finalAction = customAction ? customAction : () => { if(wasRunning && blocks.length>0 && !fromMenu) startTimer(); };
             showModal('rules', 'Regole', rules, btnLabel, finalAction);
         }
 
