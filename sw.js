@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v7'; // 🔴 aumenta SOLO se cambi asset offline
+const CACHE_VERSION = 'v8'; // 🔴 aumenta SOLO se cambi asset offline
 const CACHE_NAME = `cubo-logico-${CACHE_VERSION}`;
 
 const ASSETS = [
@@ -52,6 +52,7 @@ self.addEventListener('fetch', event => {
     )
   );
 });
+
 
 
 
