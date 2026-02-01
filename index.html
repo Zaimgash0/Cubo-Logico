@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cubo Logico</title>
+    <title>Cubo Logico 2.0</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,7 +42,7 @@
             position: absolute; display: flex; justify-content: center; align-items: center;
             font-weight: bold; font-size: 20px; color: rgba(255,255,255,0.9);
             box-sizing: border-box;
-            transition: top 0.3s, left 0.3s, transform 0.1s, opacity 0.2s;
+            transition: top 0.3s, left 0.3s, transform 0.1s, opacity 0.2s, background-color 0.3s;
             pointer-events: none; 
         }
         
@@ -113,46 +113,94 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             background-color: #34495e; border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 2px solid #4e6a85;
-            padding: 40px; width: 100%; max-width: 400px; z-index: 100;
+            padding: 30px;
+            width: 100%; max-width: 380px; z-index: 100;
+            position: relative;
         }
         
         .game-logo {
-            font-size: 40px; font-weight: 900; margin-bottom: 20px;
+            font-size: 36px; font-weight: 900; margin-bottom: 20px;
             text-transform: uppercase; letter-spacing: 2px;
             text-shadow: 0 5px 0 rgba(0,0,0,0.2); text-align: center;
         }
 
-        .menu-stats-container {
-            display: flex; flex-direction: row; justify-content: space-between;
-            width: 100%; margin-bottom: 20px;
-            background: rgba(0,0,0,0.2); border-radius: 12px;
-            padding: 10px 0;
+        /* PROFILE BUTTON */
+        .profile-btn-container {
+            position: absolute; top: 10px; right: 10px;
         }
-        .menu-stat-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            flex: 1; border-right: 1px solid rgba(255,255,255,0.1);
+        .profile-btn {
+            background: rgba(255,255,255,0.9); border: 2px solid white; color: #2c3e50;
+            font-size: 20px; padding: 8px; border-radius: 50%; cursor: pointer;
+            transition: transform 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        .menu-stat-item:last-child { border-right: none; }
-        .menu-stat-label { font-size: 10px; text-transform: uppercase; color: #bdc3c7; letter-spacing: 0.5px; margin-bottom: 2px; font-weight: bold;}
-        .menu-stat-value { font-size: 18px; font-weight: 900; color: #2ecc71; text-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+        .profile-btn:hover { transform: scale(1.1); }
+
+        /* XP BAR IN PROFILE */
+        .xp-text { font-size: 11px; margin-top: 4px; color: #7f8c8d; font-weight: bold; }
+        .xp-bar-bg { width: 100%; height: 12px; background: rgba(0,0,0,0.1); border-radius: 6px; overflow: hidden; margin-top: 5px; border: 1px solid #bdc3c7;}
+        .xp-bar-fill { height: 100%; background: #2ecc71; width: 0%; transition: width 0.5s ease; }
+        .level-badge-large { background: #e67e22; color: white; padding: 4px 12px; border-radius: 12px; font-weight: bold; font-size: 14px; }
         
-        .edit-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #f1c40f; padding: 0 5px; transition: transform 0.2s;}
-        .edit-btn:hover { transform: scale(1.2); }
+        /* FIX: CONTENITORE NOME PROFILO COMPATTO */
+        .profile-name-container {
+            display: flex; 
+            align-items: center; 
+            justify-content: center; /* Centra gli elementi */
+            gap: 5px; 
+            width: 100%;
+        }
+        
+        .profile-name-text {
+            font-size: 20px; 
+            font-weight: bold; 
+            color: #2c3e50;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* FIX MATITA */
+        .edit-btn {
+            flex: 0 0 auto !important; 
+            width: auto !important;    
+            margin-left: 8px;          
+            padding: 4px;              
+            background: transparent;   
+            border: none;              
+            box-shadow: none !important; 
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .edit-btn:active {
+            transform: scale(0.9);     
+        }
 
         .menu-btn {
             background: #e67e22; color: white;
-            font-size: 22px; font-weight: bold;
-            padding: 15px 40px; width: 100%;
+            font-size: 18px; font-weight: bold;
+            padding: 12px 20px; width: 100%;
             border: none; border-radius: 50px;
-            margin-bottom: 15px; cursor: pointer;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.2); transition: transform 0.1s;
+            margin-bottom: 10px; cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: transform 0.1s;
+            position: relative;
         }
-        .menu-btn:active { transform: translateY(5px); box-shadow: none; }
+        .menu-btn:active { transform: translateY(3px); box-shadow: none; }
         .menu-btn.secondary { background: #1abc9c; }
         .menu-btn.shop { background: #9b59b6; }
         .menu-btn.info { background: #3498db; }
         .menu-btn.news { background: #e74c3c; }
         .menu-btn.rules { background: #7f8c8d; }
+        .menu-btn.achieve { background: #f39c12; }
+
+        /* NOTIFICATION BADGE */
+        .notif-badge { 
+            position: absolute; top: -5px; right: -5px; 
+            width: 14px; height: 14px; background: red; 
+            border-radius: 50%; border: 2px solid white; 
+            display: none; animation: bounce 1s infinite;
+        }
+        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
 
         #main-container {
             display: none; gap: 15px; padding: 15px;
@@ -186,13 +234,72 @@
         button { padding: 10px; font-size: 14px; background-color: rgba(255,255,255,0.1); color: inherit; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; }
         button:active { transform: scale(0.95); background-color: rgba(255,255,255,0.2); }
         .btn-music.active { background-color: #1abc9c; color: white; }
+        .btn-pause { background-color: #f39c12; color: white; }
 
-        #game-area { position: relative; width: 500px; height: 500px; background-color: rgba(0,0,0,0.2); border-radius: 12px; border: 4px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 30px rgba(0,0,0,0.2); touch-action: none; margin-top: 5px; cursor: pointer; }
+        #game-area-wrapper { display: flex; flex-direction: column; gap: 10px; position: relative; } /* ADDED RELATIVE */
+        #game-area { position: relative; width: 500px; height: 500px; background-color: rgba(0,0,0,0.2); border-radius: 12px; border: 4px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 30px rgba(0,0,0,0.2); touch-action: none; margin-top: 5px; cursor: pointer; overflow: hidden; }
+        
+        /* PAUSE OVERLAY - FIXED ALIGNMENT */
+        #pause-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(44, 62, 80, 0.85);
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            z-index: 500; display: none;
+            
+            /* FIX CRITICO: Forza allineamento centrale */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            
+            border-radius: 12px; 
+        }
+        
+        /* NUOVO STILE TASTO RIPRENDI - PILLOLA ORIZZONTALE */
+        #btn-resume-unique {
+            background: #2ecc71; 
+            color: white;
+            font-size: 16px; 
+            padding: 12px 40px !important;
+            
+            /* FIX CRITICO: Impedisce lo stretching */
+            height: 50px !important; 
+            flex-grow: 0 !important;
+            width: auto !important;
+            align-self: center !important;
+            
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #27ae60;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            transition: all 0.1s;
+            margin: 0 auto;
+        }
+        #btn-resume-unique:active { transform: translateY(3px); box-shadow: none; }
+
+        /* POWER UPS BAR */
+        #powerup-bar {
+            display: flex; gap: 10px; justify-content: space-between; width: 500px;
+        }
+        .power-btn {
+            background: #34495e; border: 2px solid #bdc3c7; color: white;
+            padding: 8px; border-radius: 8px; flex: 1; font-size: 12px;
+            display: flex; flex-direction: column; align-items: center;
+            transition: all 0.2s;
+        }
+        .power-btn span { font-size: 18px; margin-bottom: 2px; }
+        .power-btn small { color: #f1c40f; font-weight: bold; }
+        .power-btn:active { transform: scale(0.95); }
+        .power-btn.active-power { border-color: #e74c3c; background: #c0392b; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
 
         /* MODALI */
         #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         #modal-overlay.visible { opacity: 1; pointer-events: all; }
-        .modal-box { background: #ecf0f1; color: #2c3e50; padding: 20px; width: 320px; border-radius: 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .modal-box { background: #ecf0f1; color: #2c3e50; padding: 20px; width: 320px; border-radius: 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); max-height: 80vh; overflow-y: auto; }
         .modal-title { font-size: 22px; font-weight: 900; margin-bottom: 10px; }
         .modal-text { font-size: 15px; margin-bottom: 20px; line-height: 1.4; }
         .modal-btn { background: #e67e22; font-size: 16px; padding: 12px; width: 100%; border-radius: 8px; color: white; border: none; font-weight: bold; cursor: pointer; margin-bottom: 5px;}
@@ -201,7 +308,7 @@
         /* INPUT FIELD */
         .name-input { width: 80%; padding: 12px; font-size: 18px; margin: 15px 0; border-radius: 8px; border: 2px solid #ccc; text-align: center; font-weight: bold;}
 
-        /* SHOP ITEMS & RARITY - AGGIORNATO */
+        /* SHOP ITEMS & RARITY */
         .shop-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; border-left: 5px solid #bdc3c7; }
         .shop-item.owned { background: rgba(46, 204, 113, 0.1); border-color: #2ecc71; }
         .shop-item.active { background: rgba(39, 174, 96, 0.2); border-color: #27ae60; }
@@ -212,7 +319,7 @@
         .bg-comune { background: #95a5a6; } .bg-raro { background: #3498db; }
         .bg-epico { background: #9b59b6; } .bg-leggendario { background: #f1c40f; color: black; }
 
-        /* SHOP BUTTONS UNIFORMATI */
+        /* SHOP BUTTONS */
         .shop-right-col { width: 100px; display: flex; justify-content: flex-end; align-items: center; }
         
         .shop-btn { 
@@ -245,6 +352,25 @@
         
         #global-counter-display { margin-top: 10px; font-size: 12px; color: #bdc3c7; font-weight: bold; opacity: 1; }
 
+        /* MODE SELECTOR */
+        .mode-card { border: 2px solid #ccc; border-radius: 8px; padding: 10px; margin-bottom: 8px; cursor: pointer; text-align: left; transition: all 0.2s; background: rgba(0,0,0,0.05); }
+        .mode-card:hover { border-color: #3498db; background: rgba(52, 152, 219, 0.1); }
+        .mode-card h4 { margin: 0 0 5px 0; color: #2c3e50; font-size: 16px; }
+        .mode-card p { margin: 0; font-size: 12px; color: #7f8c8d; }
+
+        /* ACHIEVEMENTS */
+        .achieve-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.1); padding: 8px 0; text-align: left; }
+        .achieve-info { flex: 1; }
+        .achieve-title { font-weight: bold; font-size: 14px; display: block; }
+        .achieve-desc { font-size: 11px; color: #7f8c8d; }
+        .achieve-btn { font-size: 11px; padding: 4px 8px; border-radius: 4px; border: none; background: #2ecc71; color: white; cursor: pointer; width: auto; }
+        .achieve-btn:disabled { background: #bdc3c7; cursor: default; }
+        
+        /* TAB LEADERBOARD */
+        .tab-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { padding: 8px 16px; background: rgba(0,0,0,0.2); border: none; border-radius: 20px; color: #7f8c8d; font-weight: bold; cursor: pointer; }
+        .tab-btn.active { background: #e67e22; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
     </style>
 </head>
 <body class="skin-default">
@@ -262,27 +388,22 @@
 
     <div id="scaler-container">
         <div id="start-menu">
-            <div class="game-logo">Cubo<br><span style="color:#1abc9c">Logico</span></div>
-            
-            <div class="menu-stats-container">
-                <div class="menu-stat-item">
-                    <div class="menu-stat-label">Record</div>
-                    <div class="menu-stat-value" id="menu-highscore">0</div>
-                </div>
-                <div class="menu-stat-item">
-                    <div class="menu-stat-label">
-                        Giocatore 
-                        <button class="edit-btn" onclick="resetProfile()" title="Cambia account">✏️</button>
-                    </div>
-                    <div class="menu-stat-value" id="menu-playername" style="font-size:14px; color:#3498db;">---</div>
-                </div>
+            <div class="profile-btn-container">
+                <button class="profile-btn" onclick="openProfile()">👤</button>
             </div>
 
-            <button class="menu-btn" onclick="startGame()">GIOCA</button>
+            <div class="game-logo">Cubo<br><span style="color:#1abc9c">Logico</span></div>
+            
+            <button class="menu-btn" onclick="showModeSelection()">GIOCA</button>
             <button class="menu-btn secondary" onclick="showLeaderboard()">CLASSIFICA 🏆</button>
-            <button class="menu-btn info" onclick="showNews()">NOVITÀ 🔔</button>
+            <button class="menu-btn achieve" onclick="showAchievements()">MISSIONI 🎖️</button>
+            <button class="menu-btn info" onclick="showNews()">
+                NOVITÀ 🔔
+                <span id="news-badge" class="notif-badge"></span>
+            </button>
             <button class="menu-btn shop" onclick="openShop()">SHOP 🛒</button>
-            <button class="menu-btn rules" onclick="showInstructions(true)">REGOLE 📜</button>
+            <button class="menu-btn rules" onclick="showInstructions(true)">COME SI GIOCA 📜</button>
+            
             <div id="global-counter-display">Caricamento partite...</div>
         </div>
 
@@ -291,7 +412,7 @@
                 <div class="panel-title">Cubo <span style="color:#1abc9c">Logico</span></div>
                 
                 <div class="stat-box" id="timer-box">
-                    <div class="stat-label">TEMPO</div>
+                    <div class="stat-label" id="timer-label">TEMPO</div>
                     <div class="stat-value" id="timer-display">90</div>
                 </div>
 
@@ -325,12 +446,33 @@
 
                 <div class="controls">
                     <button id="music-btn" class="btn-music" onclick="toggleMusic()">🎵</button>
+                    <button id="pause-btn" class="btn-pause" onclick="togglePause()">⏸️</button>
                     <button onclick="confirmHome()">🏠</button>
                     <button onclick="confirmRestart()">🔄</button>
                 </div>
             </div>
 
-            <div id="game-area"></div>
+            <div id="game-area-wrapper">
+                <div id="game-area"></div>
+                <div id="pause-overlay">
+                    <button id="btn-resume-unique" onclick="togglePause()">RIPRENDI</button>
+                </div>
+
+                <div id="powerup-bar">
+                    <button class="power-btn" onclick="activatePower('shuffle')">
+                        <span>⚡</span>
+                        Scossa <small>50</small>
+                    </button>
+                    <button class="power-btn" id="btn-tnt" onclick="activatePower('tnt')">
+                        <span>🧨</span>
+                        TNT <small>80</small>
+                    </button>
+                    <button class="power-btn" id="btn-joker" onclick="activatePower('joker')">
+                        <span>🃏</span>
+                        Jolly <small>150</small>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -366,7 +508,7 @@
 
 
         // --- DATI GIOCO ---
-        const CURRENT_VERSION = "1.1";
+        const CURRENT_VERSION = "2.0";
         let gameStats = { 
             highScore: 0, 
             maxLevel: 1, 
@@ -376,7 +518,14 @@
             currentSkin: 'default',
             userId: null,
             userName: null,
-            isAdmin: false
+            isAdmin: false,
+            // V1.5 Data Structure
+            playerLevel: 1,
+            playerXP: 0,
+            achievements: {}, 
+            lastDailyClaim: 0,
+            dailyStreak: 0, // 0 to 7
+            lastVersionSeen: "0"
         };
 
         const SKINS_DATA = {
@@ -388,25 +537,73 @@
             'neon': { name: 'Cyber Neon', price: 1000, rarity: 'leggendario' }
         };
 
-        // --- INIT SISTEMA (MIGRAZIONE DATI VECCHI) ---
+        // LISTA TRAGUARDI ESPANSA
+        const ACHIEVEMENTS_LIST = [
+            // PUNTEGGIO
+            { id: 'sc_50k', title: 'Principiante', desc: 'Punteggio 50.000', rewardXP: 100, rewardCoins: 50, check: (s) => s.highScore >= 50000 },
+            { id: 'sc_100k', title: 'Promettente', desc: 'Punteggio 100.000', rewardXP: 200, rewardCoins: 100, check: (s) => s.highScore >= 100000 },
+            { id: 'sc_250k', title: 'Esperto', desc: 'Punteggio 250.000', rewardXP: 400, rewardCoins: 200, check: (s) => s.highScore >= 250000 },
+            { id: 'sc_500k', title: 'Maestro', desc: 'Punteggio 500.000', rewardXP: 800, rewardCoins: 400, check: (s) => s.highScore >= 500000 },
+            { id: 'sc_1m', title: 'Leggenda', desc: 'Punteggio 1.000.000', rewardXP: 2000, rewardCoins: 1000, check: (s) => s.highScore >= 1000000 },
+            
+            // PARTITE GIOCATE
+            { id: 'gm_10', title: 'Riscaldamento', desc: 'Gioca 10 partite', rewardXP: 50, rewardCoins: 25, check: (s) => s.totalGames >= 10 },
+            { id: 'gm_50', title: 'Appassionato', desc: 'Gioca 50 partite', rewardXP: 100, rewardCoins: 50, check: (s) => s.totalGames >= 50 },
+            { id: 'gm_100', title: 'Costante', desc: 'Gioca 100 partite', rewardXP: 200, rewardCoins: 100, check: (s) => s.totalGames >= 100 },
+            { id: 'gm_250', title: 'Veterano', desc: 'Gioca 250 partite', rewardXP: 500, rewardCoins: 250, check: (s) => s.totalGames >= 250 },
+            { id: 'gm_500', title: 'Dipendente', desc: 'Gioca 500 partite', rewardXP: 1000, rewardCoins: 500, check: (s) => s.totalGames >= 500 },
+            { id: 'gm_1000', title: 'Highlander', desc: 'Gioca 1000 partite', rewardXP: 2500, rewardCoins: 1000, check: (s) => s.totalGames >= 1000 },
+
+            // LIVELLO GIOCATORE
+            { id: 'pl_5', title: 'Livello 5', desc: 'Raggiungi liv. giocatore 5', rewardXP: 100, rewardCoins: 50, check: (s) => s.playerLevel >= 5 },
+            { id: 'pl_10', title: 'Livello 10', desc: 'Raggiungi liv. giocatore 10', rewardXP: 200, rewardCoins: 100, check: (s) => s.playerLevel >= 10 },
+            { id: 'pl_20', title: 'Livello 20', desc: 'Raggiungi liv. giocatore 20', rewardXP: 400, rewardCoins: 200, check: (s) => s.playerLevel >= 20 },
+            { id: 'pl_30', title: 'Livello 30', desc: 'Raggiungi liv. giocatore 30', rewardXP: 600, rewardCoins: 300, check: (s) => s.playerLevel >= 30 },
+            { id: 'pl_50', title: 'Livello 50', desc: 'Raggiungi liv. giocatore 50', rewardXP: 1000, rewardCoins: 500, check: (s) => s.playerLevel >= 50 },
+
+            // MONETE ACCUMULATE
+            { id: 'cn_100', title: 'Salvadanaio', desc: 'Possiedi 100 monete', rewardXP: 50, rewardCoins: 20, check: (s) => s.coins >= 100 },
+            { id: 'cn_500', title: 'Risparmiatore', desc: 'Possiedi 500 monete', rewardXP: 150, rewardCoins: 50, check: (s) => s.coins >= 500 },
+            { id: 'cn_1000', title: 'Investitore', desc: 'Possiedi 1000 monete', rewardXP: 300, rewardCoins: 100, check: (s) => s.coins >= 1000 },
+            { id: 'cn_5000', title: 'Riccone', desc: 'Possiedi 5000 monete', rewardXP: 1000, rewardCoins: 200, check: (s) => s.coins >= 5000 },
+            { id: 'cn_10000', title: 'Tycoon', desc: 'Possiedi 10.000 monete', rewardXP: 2000, rewardCoins: 500, check: (s) => s.coins >= 10000 },
+
+            // LIVELLO PARTITA
+            { id: 'gl_5', title: 'Sopravvissuto', desc: 'Arriva al Livello 5 in partita', rewardXP: 100, rewardCoins: 50, check: (s) => s.maxLevel >= 5 },
+            { id: 'gl_10', title: 'Scalatore', desc: 'Arriva al Livello 10 in partita', rewardXP: 200, rewardCoins: 100, check: (s) => s.maxLevel >= 10 },
+            { id: 'gl_15', title: 'Alpinista', desc: 'Arriva al Livello 15 in partita', rewardXP: 400, rewardCoins: 200, check: (s) => s.maxLevel >= 15 },
+            { id: 'gl_20', title: 'Astronauta', desc: 'Arriva al Livello 20 in partita', rewardXP: 1000, rewardCoins: 500, check: (s) => s.maxLevel >= 20 },
+            
+            // BONUS
+            { id: 'start', title: 'Benvenuto', desc: 'Completa la prima partita', rewardXP: 50, rewardCoins: 10, check: (s) => s.totalGames >= 1 },
+            { id: 'rich', title: 'Primo Acquisto', desc: 'Sblocca una Skin', rewardXP: 100, rewardCoins: 50, check: (s) => s.unlockedSkins.length >= 2 },
+            { id: 'collector', title: 'Collezionista', desc: 'Sblocca 3 Skin', rewardXP: 300, rewardCoins: 150, check: (s) => s.unlockedSkins.length >= 3 },
+            { id: 'fullset', title: 'Fashionista', desc: 'Sblocca 5 Skin', rewardXP: 1000, rewardCoins: 500, check: (s) => s.unlockedSkins.length >= 5 }
+        ];
+
+        // --- INIT SISTEMA (MIGRAZIONE DATI) ---
         function loadStats() {
-            // PROVA A CARICARE V5 (Versione Corrente)
-            let saved = localStorage.getItem('cuboLogicoStatsV5'); 
+            let saved = localStorage.getItem('cuboLogicoStatsV2.0'); // Version bumped to 2.0
             
             if (saved) {
-                // Utente già aggiornato
                 gameStats = JSON.parse(saved);
             } else {
-                // Utente non aggiornato: CERCA I DATI VECCHI (V4)
-                let oldSaved = localStorage.getItem('cuboLogicoStatsV4');
+                let oldSaved = localStorage.getItem('cuboLogicoStatsV8') || localStorage.getItem('cuboLogicoStatsV7');
                 if (oldSaved) {
                     let oldData = JSON.parse(oldSaved);
-                    // MIGRAZIONE: Copia monete e skin sbloccate
                     gameStats.coins = oldData.coins || 0;
-                    if(oldData.unlockedSkins) gameStats.unlockedSkins = oldData.unlockedSkins;
-                    // Non copiamo il record per tenere la classifica pulita, o copialo se vuoi:
-                    // gameStats.highScore = oldData.highScore || 0; 
+                    gameStats.highScore = oldData.highScore || 0;
+                    gameStats.unlockedSkins = oldData.unlockedSkins || ['default'];
+                    gameStats.currentSkin = oldData.currentSkin || 'default';
+                    gameStats.userId = oldData.userId;
+                    gameStats.userName = oldData.userName;
+                    gameStats.isAdmin = oldData.isAdmin || false;
+                    gameStats.playerLevel = oldData.playerLevel || 1;
+                    gameStats.playerXP = oldData.playerXP || 0;
+                    gameStats.totalGames = oldData.totalGames || 0;
+                    gameStats.maxLevel = oldData.maxLevel || 1;
                 }
+                saveStats(); 
             }
             
             // Genera ID unico se manca
@@ -415,13 +612,76 @@
                 saveStats();
             }
 
+            if(!gameStats.playerLevel) gameStats.playerLevel = 1;
+            if(!gameStats.playerXP) gameStats.playerXP = 0;
+            if(!gameStats.achievements) gameStats.achievements = {};
+            if(!gameStats.dailyStreak) gameStats.dailyStreak = 0;
+
             applySkin(gameStats.currentSkin);
-            updateMenuStats();
+            checkNewsBadge();
             checkLogin(); 
         }
         function saveStats() { 
-            localStorage.setItem('cuboLogicoStatsV5', JSON.stringify(gameStats)); 
-            updateMenuStats();
+            localStorage.setItem('cuboLogicoStatsV2.0', JSON.stringify(gameStats)); 
+        }
+
+        // --- SISTEMA XP ---
+        function getXPForNextLevel() {
+            return gameStats.playerLevel * 500;
+        }
+
+        function gainXP(amount) {
+            gameStats.playerXP += amount;
+            let needed = getXPForNextLevel();
+            if (gameStats.playerXP >= needed) {
+                gameStats.playerXP -= needed;
+                gameStats.playerLevel++;
+                alert(`LEVEL UP! Sei ora livello ${gameStats.playerLevel}! (+50 Monete)`);
+                gameStats.coins += 50;
+                playSound('success');
+            }
+            saveStats();
+        }
+
+        function openProfile() {
+            const needed = getXPForNextLevel();
+            const pct = (gameStats.playerXP / needed) * 100;
+            const streak = gameStats.dailyStreak || 0;
+            
+            const html = `
+                <div class="modal-title">PROFILO GIOCATORE</div>
+                <div style="margin-bottom:20px;">
+                     <div style="margin-bottom:5px; color:#7f8c8d; font-size:12px; font-weight:bold; text-transform:uppercase;">Nickname</div>
+                     <div class="profile-name-container">
+                        <span class="profile-name-text">${gameStats.userName || 'Ospite'}</span>
+                        <button class="edit-btn" onclick="resetProfile()">✏️</button>
+                     </div>
+                     <div style="font-size:14px; color:#e67e22; font-weight:bold; margin-top:5px;">🔥 Streak: ${streak} Giorni</div>
+                </div>
+
+                <div style="background:white; padding:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="level-badge-large">Livello ${gameStats.playerLevel}</span>
+                    </div>
+                    <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+                    <div class="xp-text">${gameStats.playerXP} / ${needed} XP</div>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <div class="stat-box" style="background:#fff; border-left-color:#f1c40f;">
+                        <div class="stat-label" style="color:#2c3e50">Record</div>
+                        <div class="stat-value" style="color:#2c3e50">${gameStats.highScore}</div>
+                    </div>
+                    <div class="stat-box" style="background:#fff; border-left-color:#3498db;">
+                        <div class="stat-label" style="color:#2c3e50">Partite</div>
+                        <div class="stat-value" style="color:#2c3e50">${gameStats.totalGames}</div>
+                    </div>
+                </div>
+
+                <button class="modal-btn" style="margin-top:20px;" onclick="closeModal()">CHIUDI</button>
+            `;
+            document.getElementById('modal-content').innerHTML = html;
+            document.getElementById('modal-overlay').classList.add('visible');
         }
 
         // --- LOGIN PERSISTENTE ---
@@ -430,7 +690,7 @@
                 document.getElementById('modal-content').innerHTML = `
                     <div class="modal-title">BENVENUTO!</div>
                     <div class="modal-text">Scegli un Nickname per la classifica mondiale.</div>
-                    <input type="text" id="loginName" class="name-input" placeholder="Il tuo nome..." maxlength="12">
+                    <input type="text" id="loginName" class="name-input" placeholder="Il tuo nome..." maxlength="16">
                     <button class="modal-btn" onclick="performLogin()">SALVA & INIZIA</button>
                 `;
                 document.getElementById('modal-overlay').classList.add('visible');
@@ -444,11 +704,11 @@
             
             gameStats.userName = name;
             
-            // CHECK ADMIN (Codice offuscato: DEV_MASTER -> Base64)
+            // CHECK ADMIN
             if (btoa(name) === "REVWX01BU1RFUg==") {
                 gameStats.isAdmin = true;
-                gameStats.userName = "Sviluppatore"; // Nome pubblico fake
-                alert("MODALITÀ ADMIN ATTIVA");
+                gameStats.userName = "Sviluppatore"; 
+                alert("MODALITÀ ADMIN ATTIVA: Shop Gratis & Niente Classifica!");
             }
 
             saveStats();
@@ -457,35 +717,45 @@
 
         function resetProfile() {
             if(confirm("Vuoi cambiare utente? I progressi locali verranno resettati.")) {
-                localStorage.removeItem('cuboLogicoStatsV5');
+                // RESET TOTALE PER EVITARE MIGRAZIONI INDESIDERATE (FIX PERMANENTE)
+                const keysToRemove = [
+                    'cuboLogicoStatsV2.0', 
+                    'cuboLogicoStatsV8', 
+                    'cuboLogicoStatsV7', 
+                    'cuboLogicoStatsV6', 
+                    'cuboLogicoStatsV5', 
+                    'cuboLogicoStatsV4'
+                ];
+                keysToRemove.forEach(key => localStorage.removeItem(key));
                 location.reload();
-            }
-        }
-
-        function updateMenuStats() {
-            if(document.getElementById('menu-highscore')) {
-                document.getElementById('menu-highscore').innerText = gameStats.highScore;
-                document.getElementById('menu-playername').innerText = gameStats.userName || "Ospite";
             }
         }
 
         // --- SALVATAGGIO CLASSIFICA AUTO ---
         function autoSaveScore(score) {
-            // SE ADMIN: NON SALVARE MAI
+            // ADMIN NON SALVA MAI
             if (!db || !gameStats.userName || gameStats.isAdmin) return;
             
+            // SALVA SOLO SE ARCADE
+            if (currentMode !== 'arcade') return;
+
             const userRef = db.ref('leaderboard/' + gameStats.userId);
-            
             userRef.once('value').then((snapshot) => {
                 const data = snapshot.val();
+                let newStreak = gameStats.dailyStreak || 0;
+                
                 if (!data || score > data.score) {
-                    userRef.set({
-                        name: gameStats.userName,
-                        score: parseInt(score), // Forza numero
-                        date: Date.now()
+                    userRef.set({ 
+                        name: gameStats.userName, 
+                        score: parseInt(score), 
+                        streak: parseInt(newStreak), // Save Streak
+                        date: Date.now() 
                     });
                 } else {
-                    userRef.update({ name: gameStats.userName });
+                    userRef.update({ 
+                        name: gameStats.userName,
+                        streak: parseInt(newStreak) // Update streak anyway
+                    });
                 }
             });
         }
@@ -502,75 +772,138 @@
         initGlobalCounter();
 
         function incrementGlobalGames() {
-            if(!db || gameStats.isAdmin) return; // Admin non conta
+            if(!db || gameStats.isAdmin) return;
             db.ref('globalStats/totalGames').transaction(c => (c || 0) + 1);
         }
 
         // --- SISTEMA NOVITÀ ---
+        function checkNewsBadge() {
+            if (gameStats.lastVersionSeen !== CURRENT_VERSION) {
+                document.getElementById('news-badge').style.display = 'block';
+            } else {
+                document.getElementById('news-badge').style.display = 'none';
+            }
+        }
+
         function showNews() {
             const newsHtml = `
                 <div class="modal-title">NOVITÀ v${CURRENT_VERSION}</div>
                 <div class="modal-text" style="text-align:left;">
-                    <p><b>🔐 Login :</b>Memorizza i tuoi punteggi migliori, e se vuoi cambiare usa la matita.</p>
-                    <p><b>✨ Skin:</b> Fixati i colori su alcune skin.</p>
-                    <p><b>🏆 Classifica:</b> La classifica è stata migliorata.</p>
-                    <p><b>💰 Monete:</b> Il sistema di monete è stato rivisto.</p>
+                    <p><b>✨ Nuovo Tasto Pausa:</b> Partite senza stress!</p>
+                    <p><b>✨ Livello giocatore e missioni:</b> Potenzia le tue statistiche!</p>
+                    <p><b>🧠 Sopravvivenza e frenesia:</b> Due nuove modalità di gioco</p>
+                    <p><b>🐛 Bug Fix:</b> Risolti problemi.</p>
                 </div>
-                <button class="modal-btn" onclick="closeModal()">CHIUDI</button>
+                <button class="modal-btn" onclick="closeNews()">HO CAPITO</button>
             `;
             document.getElementById('modal-content').innerHTML = newsHtml;
             document.getElementById('modal-overlay').classList.add('visible');
-            gameStats.lastVersionSeen = CURRENT_VERSION;
-            saveStats();
         }
 
-        // --- CLASSIFICA (FIX COLORI) ---
-        function showLeaderboard() {
+        function closeNews() {
+            gameStats.lastVersionSeen = CURRENT_VERSION;
+            saveStats();
+            checkNewsBadge();
+            closeModal();
+        }
+
+        // --- CLASSIFICA CON TOGGLE ---
+        let leaderboardMode = 'score'; // 'score' or 'streak'
+
+        function showLeaderboard(mode = 'score') {
+            leaderboardMode = mode;
             if (!db) { alert("Offline"); return; }
+            
             document.getElementById('modal-content').innerHTML = `<div class="modal-title">TOP 10 MONDIALE</div><div class="modal-text">Caricamento...</div><button class="modal-btn" onclick="closeModal()">CHIUDI</button>`;
             document.getElementById('modal-overlay').classList.add('visible');
 
-            // SCARICA TUTTO E ORDINA IN JS (Massima stabilità)
-            db.ref('leaderboard').limitToLast(20).once('value').then((snap) => {
-                let scores = [];
+            db.ref('leaderboard').limitToLast(50).once('value').then((snap) => {
+                let players = [];
                 snap.forEach(c => {
                     const val = c.val();
-                    if(val.name && val.score !== undefined) {
-                        scores.push(val);
+                    if(val.name) {
+                        players.push(val);
                     }
                 });
+
+                // Sort based on mode
+                if (leaderboardMode === 'score') {
+                    players.sort((a, b) => b.score - a.score);
+                } else {
+                    players.sort((a, b) => (b.streak || 0) - (a.streak || 0));
+                }
                 
-                // Ordina manuale (Decrescente)
-                scores.sort((a, b) => b.score - a.score);
+                players = players.slice(0, 10);
                 
-                // Prendi top 10
-                scores = scores.slice(0, 10);
-                
-                let listHtml = scores.length ? '' : "<tr><td colspan='3'>Nessun dato</td></tr>";
-                scores.forEach((s, i) => {
+                let listHtml = players.length ? '' : "<tr><td colspan='3'>Nessun dato</td></tr>";
+                players.forEach((s, i) => {
                     const isMe = s.name === gameStats.userName;
-                    
-                    // CLASSE PER COLORI ORO/ARGENTO/BRONZO
                     let rankClass = "";
                     if(i===0) rankClass = "rank-gold";
                     else if(i===1) rankClass = "rank-silver";
                     else if(i===2) rankClass = "rank-bronze";
-
-                    // EVIDENZIA ME STESSO
                     let style = isMe ? "style='border: 2px solid white;'" : "";
-                    
-                    // ADMIN EVIDENZIATO
                     if(s.name === "Sviluppatore") style += " color:#2ecc71 !important;";
 
-                    listHtml += `<tr class="leaderboard-row ${rankClass}" ${style}><td>#${i+1}</td><td>${s.name.substring(0,12)}</td><td>${s.score}</td></tr>`;
+                    let valueToShow = leaderboardMode === 'score' ? s.score : (s.streak || 0) + ' 🔥';
+
+                    listHtml += `<tr class="leaderboard-row ${rankClass}" ${style}><td>#${i+1}</td><td>${s.name.substring(0,12)}</td><td>${valueToShow}</td></tr>`;
                 });
 
                 document.getElementById('modal-content').innerHTML = `
-                    <div class="modal-title">TOP 10 MONDIALE 🌎</div>
-                    <table class="stats-table"><tr><th>#</th><th>Nome</th><th>Punti</th></tr>${listHtml}</table>
-                    <button class="modal-btn" onclick="closeModal()">CHIUDI</button>
+                    <div class="modal-title">CLASSIFICA 🌎</div>
+                    <div class="tab-container">
+                        <button class="tab-btn ${leaderboardMode==='score'?'active':''}" onclick="showLeaderboard('score')">PUNTI</button>
+                        <button class="tab-btn ${leaderboardMode==='streak'?'active':''}" onclick="showLeaderboard('streak')">STREAK</button>
+                    </div>
+                    <table class="stats-table"><tr><th>#</th><th>Nome</th><th>${leaderboardMode==='score'?'Punti':'Giorni'}</th></tr>${listHtml}</table>
+                    <div style="font-size:10px; margin-top:5px; color:#7f8c8d;">*Solo modalità Arcade</div>
+                    <button class="modal-btn" style="margin-top:10px;" onclick="closeModal()">CHIUDI</button>
                 `;
             });
+        }
+
+        // --- TRAGUARDI ---
+        function showAchievements() {
+            let html = `<div class="modal-title">TRAGUARDI 🎖️</div><div style="max-height: 300px; overflow-y: auto;">`;
+            
+            ACHIEVEMENTS_LIST.forEach(ach => {
+                const claimed = gameStats.achievements[ach.id];
+                const completed = ach.check(gameStats);
+                let btn = "";
+                if (claimed) {
+                    btn = `<button class="achieve-btn" disabled>PRESO</button>`;
+                } else if (completed) {
+                    btn = `<button class="achieve-btn" onclick="claimAchievement('${ach.id}')">RISCATTA</button>`;
+                } else {
+                    btn = `<button class="achieve-btn" disabled>BLOCCATO</button>`;
+                }
+
+                html += `
+                    <div class="achieve-row">
+                        <div class="achieve-info">
+                            <span class="achieve-title" style="${claimed?'color:#2ecc71':''}">${ach.title}</span>
+                            <span class="achieve-desc">${ach.desc} (+${ach.rewardXP} XP)</span>
+                        </div>
+                        <div>${btn}</div>
+                    </div>
+                `;
+            });
+            html += `</div><button class="modal-btn" style="margin-top:10px" onclick="closeModal()">CHIUDI</button>`;
+            document.getElementById('modal-content').innerHTML = html;
+            document.getElementById('modal-overlay').classList.add('visible');
+        }
+
+        function claimAchievement(id) {
+            const ach = ACHIEVEMENTS_LIST.find(a => a.id === id);
+            if (ach && !gameStats.achievements[id]) {
+                gameStats.achievements[id] = true;
+                gameStats.coins += ach.rewardCoins;
+                gainXP(ach.rewardXP);
+                saveStats();
+                playSound('success');
+                showAchievements();
+            }
         }
 
         // --- SHOP ---
@@ -583,15 +916,10 @@
                 const active = gameStats.currentSkin === id;
                 const priceDisplay = gameStats.isAdmin ? "0 (Admin)" : data.price;
                 
-                // GENERAZIONE PULSANTI ALLINEATI
                 let rightCol = '';
-                if (active) {
-                    rightCol = `<span class="active-text">ATTIVO</span>`;
-                } else if (owned) {
-                    rightCol = `<button class="shop-btn equip" onclick="equipSkin('${id}')">USA</button>`;
-                } else {
-                    rightCol = `<button class="shop-btn buy" onclick="buySkin('${id}')">${priceDisplay} 💰</button>`;
-                }
+                if (active) rightCol = `<span class="active-text">ATTIVO</span>`;
+                else if (owned) rightCol = `<button class="shop-btn equip" onclick="equipSkin('${id}')">USA</button>`;
+                else rightCol = `<button class="shop-btn buy" onclick="buySkin('${id}')">${priceDisplay} 💰</button>`;
 
                 html += `
                     <div class="shop-item rarity-${data.rarity} ${active ? 'active' : (owned ? 'owned' : '')}">
@@ -599,9 +927,7 @@
                             <span>${data.name}</span>
                             <span class="rarity-tag bg-${data.rarity}">${data.rarity}</span>
                         </div>
-                        <div class="shop-right-col">
-                            ${rightCol}
-                        </div>
+                        <div class="shop-right-col">${rightCol}</div>
                     </div>`;
             }
             html += `</div><button class="modal-btn" style="margin-top:10px" onclick="closeModal()">CHIUDI</button>`;
@@ -611,7 +937,7 @@
 
         function buySkin(id) {
             let price = SKINS_DATA[id].price;
-            if (gameStats.isAdmin) price = 0;
+            if (gameStats.isAdmin) price = 0; // FREE FOR ADMIN
 
             if (gameStats.coins >= price) {
                 gameStats.coins -= price;
@@ -639,9 +965,14 @@
         const MISSION_BONUS = 1000, LEVEL_BONUS = 10000;
         let blocks = [], score = 0, bonusLives = 10, level = 1, isAnimating = false, nextBlockId = 0;
         let currentMission = { color: 1, targetSize: 0, completed: false };
-        let timeRemaining = TIME_PER_LEVEL, timerInterval = null;
+        let timeRemaining = TIME_PER_LEVEL, timerInterval = null, frenzyInterval = null;
         let lastHoveredBlock = null;
         let consecutiveMissions = 0, startLevelLives = 10;
+        
+        let currentMode = 'arcade'; 
+        let strategicMoves = 100; // Updated to 100
+        let activePowerUp = null; 
+        let isPaused = false;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let isMusicPlaying = false, musicStarted = false, ambientInterval = null;
@@ -675,28 +1006,115 @@
         gameArea.addEventListener('mousemove', handleMouseMove);
         gameArea.addEventListener('click', handleMouseClick);
 
+        // --- MODE SELECTION ---
+        function showModeSelection() {
+            const html = `
+                <div class="modal-title">SCEGLI MODALITÀ</div>
+                <div class="mode-card" onclick="selectMode('arcade')">
+                    <h4>🕹️ Arcade</h4>
+                    <p>Modalità classica</p>
+                </div>
+                <div class="mode-card" onclick="selectMode('strategic')">
+                    <h4>🧠 Sopravvivenza</h4>
+                    <p>Niente tempo. 100 Mosse. Fai il record!</p>
+                </div>
+                <div class="mode-card" onclick="selectMode('frenzy')">
+                    <h4>🔥 Frenesia</h4>
+                    <p>Caos totale!Colori instabili per chi adora variare.</p>
+                </div>
+                <button class="modal-btn" onclick="closeModal()">ANNULLA</button>
+            `;
+            document.getElementById('modal-content').innerHTML = html;
+            document.getElementById('modal-overlay').classList.add('visible');
+        }
+
+        function selectMode(mode) {
+            currentMode = mode;
+            closeModal();
+            startGame();
+        }
+
         // --- GAME FUNCTIONS ---
         function startGame() {
+            // FIX CRITICO: Pulizia completa intervalli pregressi
+            if(timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            if(frenzyInterval) { clearInterval(frenzyInterval); frenzyInterval = null; }
+
             document.getElementById('start-menu').style.display = 'none';
             document.getElementById('main-container').style.display = 'flex';
+            
             if (audioCtx.state === 'suspended') audioCtx.resume();
             incrementGlobalGames();
+            
+            // RESET VARIABILI
             level = 1; score = 0; bonusLives = 10; consecutiveMissions = 0;
+            strategicMoves = 100; 
+            isPaused = false;
+            blocks = []; 
+
+            // UI RESET
+            document.getElementById('pause-overlay').style.display = 'none';
+            document.getElementById('pause-btn').style.display = (currentMode === 'arcade' || currentMode === 'frenzy') ? 'block' : 'none';
+            
             if (!musicStarted) { toggleMusic(true); musicStarted = true; }
-            setTimeout(() => { resizeGame(); initGame(); }, 50);
+            
+            // TIMEOUT PER GARANTIRE RENDERING
+            setTimeout(() => { 
+                resizeGame(); 
+                initGame(); 
+            }, 50);
         }
 
         function confirmHome() { if(confirm("Vuoi davvero tornare al menu?")) goToMenu(); }
         function goToMenu() {
             if (timerInterval) clearInterval(timerInterval);
+            if (frenzyInterval) clearInterval(frenzyInterval);
             document.getElementById('main-container').style.display = 'none'; 
             document.getElementById('start-menu').style.display = 'flex'; 
+            resetPowerUpUI();
             loadStats();
             resizeGame(); 
         }
-        function confirmRestart() { if(confirm("Ricominciare la partita?")) { level=1; score=0; bonusLives=10; consecutiveMissions=0; initGame(); } }
+        function confirmRestart() { if(confirm("Ricominciare la partita?")) { level=1; score=0; bonusLives=10; consecutiveMissions=0; strategicMoves=100; initGame(); } }
         function closeModal() { document.getElementById('modal-overlay').classList.remove('visible'); }
 
+        function togglePause() {
+            if (currentMode === 'strategic') return; // No pausa needed
+            isPaused = !isPaused;
+            const overlay = document.getElementById('pause-overlay');
+            const pBtn = document.getElementById('pause-btn');
+
+            if (isPaused) {
+                overlay.style.display = 'flex';
+                pBtn.innerHTML = "▶️";
+                if(timerInterval) clearInterval(timerInterval);
+                if(frenzyInterval) clearInterval(frenzyInterval);
+            } else {
+                overlay.style.display = 'none';
+                pBtn.innerHTML = "⏸️";
+                if(currentMode === 'arcade') startTimer();
+                if(currentMode === 'frenzy') frenzyInterval = setInterval(frenzyEffect, 3000); 
+            }
+        }
+
+        function showInstructions(fromMenu = false, customAction = null) {
+            // FIX TASTO REGOLE: Controllo esistenza timer prima di fermarlo
+            const wasRunning = (timerInterval !== null);
+            if (wasRunning && !fromMenu) clearInterval(timerInterval);
+            
+            const rules = `
+                <li>🖥️ <b>PC:</b> Clicca sui gruppi per distruggere.</li>
+                <li>📱 <b>Mobile:</b> Tieni premuto per vedere i numeri, rilascia per distruggere.</li>
+                <li>🏆 <b>Obiettivo:</b> Elimina i cubi entro il tempo!</li>
+                <li>🏆 <b>Missioni:</b> Raggruppa i cubi giusti per guadagnare punti extra! Con 3                                                                                          obiettivi consecutivi guadagnerai il 10% di bonus.</li>
+                <li>💔 <b>Bonus:</b> Cliccare su un cubo isolato toglie 10%. A 0% perdi.</li>
+                <li>💰 <b>Monete:</b> Guadagna monete in base alla tua abilità!</li>
+                <li>🧨 <b>TNT:</b>Le TNT ti aiutano ad eliminare cubi singoli.</li>           `;
+            const btnLabel = customAction ? 'INIZIA' : (fromMenu ? 'OK' : 'RIPRENDI');
+            const finalAction = customAction ? customAction : () => { if(wasRunning && blocks.length>0 && !fromMenu && currentMode === 'arcade') startTimer(); };
+            showModal('rules', 'Regole', rules, btnLabel, finalAction);
+        }
+        
         function showModal(type, title, text, btnText, action) {
             document.getElementById('modal-content').innerHTML = `
                 <div class="modal-title">${title}</div>
@@ -710,31 +1128,38 @@
             };
         }
 
-        function showInstructions(fromMenu = false, customAction = null) {
-            const wasRunning = (timerInterval !== null);
-            if (wasRunning && !fromMenu) clearInterval(timerInterval);
-            const rules = `
-                <li>🖥️ <b>PC:</b> Clicca sui gruppi per distruggere.</li>
-                <li>📱 <b>Mobile:</b> Tieni premuto per vedere i numeri, rilascia per distruggere.</li>
-                <li>🏆 <b>Obiettivo:</b> Elimina i cubi entro il tempo!</li>
-                <li>🏆 <b>Missioni:</b> Raggruppa i cubi giusti per guadagnare punti extra! Con 3 obiettivi consecutivi guadagnerai il 10% di bonus.</li>
-                <li>💔 <b>Bonus:</b> Cliccare su un cubo isolato toglie 10%. A 0% perdi.</li>
-                <li>💰 <b>Monete:</b> Guadagna monete in base alla tua abilità!</li>
-                <li>🧨 <b>TNT:</b>Le TNT ti aiutano ad eliminare cubi singoli.</li>
-            `;
-            const btnLabel = customAction ? 'INIZIA' : (fromMenu ? 'OK' : 'RIPRENDI');
-            const finalAction = customAction ? customAction : () => { if(wasRunning && blocks.length>0 && !fromMenu) startTimer(); };
-            showModal('rules', 'Regole', rules, btnLabel, finalAction);
-        }
-
         function initGame() {
             const area = document.getElementById('game-area');
             area.innerHTML = ''; blocks = []; lastHoveredBlock = null;
             startLevelLives = bonusLives;
+            activePowerUp = null; resetPowerUpUI();
+            
+            isPaused = false;
+            document.getElementById('pause-overlay').style.display = 'none';
+            if(timerInterval) clearInterval(timerInterval);
+            if(frenzyInterval) clearInterval(frenzyInterval);
+
+            // Setup UI Mode Labels Prima di creare cubi
+            if (currentMode === 'strategic') {
+                document.getElementById('timer-label').innerText = "MOSSE";
+                document.getElementById('timer-display').innerText = strategicMoves;
+                document.getElementById('lives-display').innerText = "∞";
+                document.getElementById('timer-display').style.color = 'white';
+            } else if (currentMode === 'frenzy') {
+                document.getElementById('timer-label').innerText = "FRENESIA";
+                document.getElementById('timer-display').innerText = "∞";
+                document.getElementById('lives-display').innerText = (bonusLives * 10) + "%";
+            } else {
+                timeRemaining = TIME_PER_LEVEL;
+                document.getElementById('timer-label').innerText = "TEMPO";
+                document.getElementById('lives-display').innerText = (bonusLives * 10) + "%";
+            }
+
             let numColors = Math.min(level + 1, 5); 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) { createBlock(r, c, Math.floor(Math.random() * numColors) + 1); }
             }
+            
             let tntCount = 2; let assignedTNT = 0;
             while(assignedTNT < tntCount) {
                 const idx = Math.floor(Math.random() * blocks.length);
@@ -742,10 +1167,36 @@
                     blocks[idx].color = TNT_VALUE; updateBlockVisual(blocks[idx]); assignedTNT++;
                 }
             }
+            
             currentMission = { color: Math.floor(Math.random() * numColors) + 1, targetSize: Math.floor(Math.random() * 5) + 5, completed: false };
             updateMissionUI(); showLevelPopup();
-            isAnimating = false; clearInterval(timerInterval); timeRemaining = TIME_PER_LEVEL;
-            setTimeout(() => { startTimer(); }, 2000); updateUI();
+            
+            isAnimating = false; 
+
+            // AVVIO LOGICA
+            if (currentMode === 'frenzy') {
+                setTimeout(() => { 
+                    frenzyInterval = setInterval(frenzyEffect, 3000); 
+                }, 2000);
+            } else if (currentMode === 'arcade') {
+                setTimeout(() => { startTimer(); }, 2000);
+            }
+            
+            updateUI();
+        }
+
+        function frenzyEffect() {
+            if(isAnimating || blocks.length < 5 || isPaused) return;
+            for(let i=0; i<5; i++) {
+                let r = Math.floor(Math.random() * blocks.length);
+                if(blocks[r].color !== TNT_VALUE) {
+                    blocks[r].color = Math.floor(Math.random() * 5) + 1;
+                    updateBlockVisual(blocks[r]);
+                }
+            }
+            playSound('pop');
+            gameArea.style.boxShadow = "inset 0 0 50px #9b59b6";
+            setTimeout(()=> gameArea.style.boxShadow = "inset 0 0 30px rgba(0,0,0,0.2)", 200);
         }
 
         function createBlock(r, c, color) {
@@ -777,20 +1228,97 @@
         }
 
         function startTimer() {
+            if (currentMode !== 'arcade') return;
             document.getElementById('timer-display').textContent = timeRemaining;
             timerInterval = setInterval(() => {
-                timeRemaining--; document.getElementById('timer-display').textContent = timeRemaining;
-                if (timeRemaining < 20) document.getElementById('timer-display').style.color = '#e74c3c';
-                if (timeRemaining <= 0) {
-                    clearInterval(timerInterval); playSound('gameover');
-                    if(score > gameStats.highScore) {
-                        gameStats.highScore = score;
-                        autoSaveScore(score);
+                if(!isPaused) {
+                    timeRemaining--; document.getElementById('timer-display').textContent = timeRemaining;
+                    if (timeRemaining < 20) document.getElementById('timer-display').style.color = '#e74c3c';
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval); playSound('gameover');
+                        endGameCheck();
+                        gameOverSequence();
                     }
-                    saveStats();
-                    gameOverSequence();
                 }
             }, 1000);
+        }
+
+        // --- POWER UPS LOGIC ---
+        function activatePower(type) {
+            if (isAnimating || isPaused) return;
+            let cost = 0;
+            if (type === 'shuffle') cost = 50;
+            if (type === 'tnt') cost = 80;
+            if (type === 'joker') cost = 150;
+            
+            // ADMIN FREE SHOP
+            if (gameStats.isAdmin) cost = 0;
+
+            if (gameStats.coins < cost) { alert("Monete insufficienti!"); return; }
+
+            // Se è Scossa, azione immediata
+            if (type === 'shuffle') {
+                if(confirm(`Usare Scossa (${cost} monete)?`)) {
+                    gameStats.coins -= cost;
+                    playSound('success');
+                    blocks.forEach(b => {
+                        if(b.color !== TNT_VALUE) {
+                            b.color = Math.floor(Math.random() * 5) + 1;
+                            updateBlockVisual(b);
+                        }
+                    });
+                    updateUI();
+                }
+                return;
+            }
+
+            // Altri sono a target
+            if (activePowerUp === type) {
+                // Disattiva se clicco ancora
+                activePowerUp = null;
+                resetPowerUpUI();
+            } else {
+                activePowerUp = type;
+                resetPowerUpUI();
+                if (type === 'tnt') document.getElementById('btn-tnt').classList.add('active-power');
+                if (type === 'joker') document.getElementById('btn-joker').classList.add('active-power');
+            }
+        }
+
+        function resetPowerUpUI() {
+            document.querySelectorAll('.power-btn').forEach(b => b.classList.remove('active-power'));
+        }
+
+        function executePowerUpMove(block) {
+            let cost = (activePowerUp === 'tnt') ? 80 : 150;
+            if (gameStats.isAdmin) cost = 0;
+
+            if (gameStats.coins < cost) {
+                 alert("Non hai più abbastanza monete!");
+                 activePowerUp = null; resetPowerUpUI();
+                 return;
+            }
+
+            gameStats.coins -= cost;
+            updateUI();
+            
+            if (activePowerUp === 'tnt') {
+                block.color = TNT_VALUE;
+                updateBlockVisual(block);
+                playSound('success');
+            } else if (activePowerUp === 'joker') {
+                if (block.color === TNT_VALUE) {
+                    destroyBlocks([block]);
+                } else {
+                    let targets = blocks.filter(b => b.color === block.color);
+                    score += targets.length * 10;
+                    playSound('boom');
+                    destroyBlocks(targets);
+                }
+            }
+
+            activePowerUp = null;
+            resetPowerUpUI();
         }
 
         function getBlockFromEvent(e) {
@@ -803,11 +1331,23 @@
             return blocks.find(b => b.r === r && b.c === c);
         }
 
-        function handleTouchStart(e) { e.preventDefault(); if(isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b){ previewBlock(b); lastHoveredBlock=b; } }
-        function handleTouchMove(e) { e.preventDefault(); if(isAnimating) return; const b = getBlockFromEvent(e); if(b && b!==lastHoveredBlock){ previewBlock(b); lastHoveredBlock=b; } else if(!b){ clearHighlights(); lastHoveredBlock=null; } }
-        function handleTouchEnd(e) { e.preventDefault(); if(isAnimating) return; if(lastHoveredBlock){ executeMove(lastHoveredBlock); lastHoveredBlock=null; clearHighlights(); } }
-        function handleMouseMove(e) { if(isAnimating) return; const b = getBlockFromEvent(e); if(b) previewBlock(b); else clearHighlights(); }
-        function handleMouseClick(e) { if(isAnimating) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b) executeMove(b); }
+        function handleTouchStart(e) { e.preventDefault(); if(isAnimating || isPaused) return; if(audioCtx.state==='suspended') audioCtx.resume(); const b = getBlockFromEvent(e); if(b){ previewBlock(b); lastHoveredBlock=b; } }
+        function handleTouchMove(e) { e.preventDefault(); if(isAnimating || isPaused) return; const b = getBlockFromEvent(e); if(b && b!==lastHoveredBlock){ previewBlock(b); lastHoveredBlock=b; } else if(!b){ clearHighlights(); lastHoveredBlock=null; } }
+        function handleTouchEnd(e) { e.preventDefault(); if(isAnimating || isPaused) return; if(lastHoveredBlock){ if(activePowerUp){ executePowerUpMove(lastHoveredBlock); } else { executeMove(lastHoveredBlock); } lastHoveredBlock=null; clearHighlights(); } }
+        function handleMouseMove(e) { if(isAnimating || isPaused) return; const b = getBlockFromEvent(e); if(b) previewBlock(b); else clearHighlights(); }
+        
+        function handleMouseClick(e) { 
+            if(isAnimating || isPaused) return; 
+            if(audioCtx.state==='suspended') audioCtx.resume(); 
+            const b = getBlockFromEvent(e); 
+            if(b) {
+                if (activePowerUp) {
+                    executePowerUpMove(b);
+                } else {
+                    executeMove(b); 
+                }
+            }
+        }
 
         function calculateDestructionSet(startBlock) {
             if (startBlock.color !== TNT_VALUE) return { targets: getMatches(startBlock.r, startBlock.c, startBlock.color), tntExploded: 0 };
@@ -827,13 +1367,17 @@
 
         function previewBlock(block) {
             clearHighlights();
+            if (activePowerUp) {
+                block.element.style.filter = "brightness(1.5)";
+                return;
+            }
             let result = calculateDestructionSet(block);
             result.targets.forEach(b => { 
                 b.element.classList.add(block.color===TNT_VALUE?'tnt-range':'preview'); 
                 if(block.color!==TNT_VALUE) b.element.innerText = result.targets.length; 
             });
         }
-        function clearHighlights() { blocks.forEach(b => { b.element.classList.remove('preview', 'tnt-range'); if(b.color!==TNT_VALUE) b.element.innerText = ''; }); }
+        function clearHighlights() { blocks.forEach(b => { b.element.classList.remove('preview', 'tnt-range'); b.element.style.filter = ""; if(b.color!==TNT_VALUE) b.element.innerText = ''; }); }
 
         function getMatches(r, c, color) {
             let start = blocks.find(b => b.r===r && b.c===c); if(!start) return [];
@@ -848,22 +1392,59 @@
         }
 
         function executeMove(block) {
+            // Strategic Check
+            if (currentMode === 'strategic') {
+                if (strategicMoves <= 0) return;
+            }
+
             let result = calculateDestructionSet(block);
             let targets = result.targets;
+            let moveValid = false;
+
             if (block.color === TNT_VALUE) {
                 playSound('boom'); score += 50 * result.tntExploded;
+                moveValid = true;
             } else {
                 if (targets.length > 1) {
                     score += Math.floor(targets.length * targets.length * 2.3);
                     if (!currentMission.completed && block.color === currentMission.color && targets.length === currentMission.targetSize) {
                         currentMission.completed = true; score += MISSION_BONUS; playSound('success'); updateMissionUI();
                     } else playSound('pop');
+                    moveValid = true;
                 } else {
-                    if (bonusLives > 0) { bonusLives--; playSound('error'); }
-                    else { playSound('gameover'); gameOverSequence(); return; }
+                    // Miss click
+                    if (currentMode !== 'strategic') {
+                        if (bonusLives > 0) { 
+                            bonusLives--; 
+                            playSound('error'); 
+                            moveValid = true; // Remove block anyway
+                        }
+                        else { playSound('gameover'); endGameCheck(); gameOverSequence(); return; }
+                    } else {
+                        playSound('error'); 
+                        moveValid = true; 
+                    }
                 }
             }
-            destroyBlocks(targets);
+
+            if (moveValid) {
+                if (currentMode === 'strategic') {
+                    // FIX: ONLY DECREMENT IF NOT TNT
+                    if (block.color !== TNT_VALUE) {
+                        strategicMoves--;
+                        document.getElementById('timer-display').innerText = strategicMoves;
+                    }
+                    
+                    if (strategicMoves === 0) {
+                        destroyBlocks(targets); 
+                        setTimeout(() => { endGameCheck(); gameOverSequence(); }, 600);
+                        return;
+                    }
+                }
+                destroyBlocks(targets);
+            } else {
+                updateUI();
+            }
         }
 
         function destroyBlocks(targets) {
@@ -887,27 +1468,38 @@
 
         function checkLevelComplete() {
             if (blocks.length === 0) {
-                clearInterval(timerInterval); playSound('pop');
+                if (timerInterval) clearInterval(timerInterval);
+                if (frenzyInterval) clearInterval(frenzyInterval);
+                
+                playSound('pop');
                 score += LEVEL_BONUS; 
-                let livesLost = startLevelLives - bonusLives;
-                let coinsEarned = Math.max(0, 10 - livesLost);
-                if (livesLost === 0) coinsEarned += 5;
+                
+                let coinsEarned = 0;
+                if (currentMode !== 'strategic') {
+                    let livesLost = startLevelLives - bonusLives;
+                    coinsEarned = Math.max(0, 10 - livesLost);
+                } else {
+                    coinsEarned = 10; 
+                }
+                
                 if (currentMission.completed) coinsEarned += 5;
                 if (level > 5) coinsEarned += 5;
                 gameStats.coins += coinsEarned;
+                
+                gainXP(20 + (level * 2));
 
                 if (currentMission.completed) {
                     consecutiveMissions++;
-                    if (consecutiveMissions >= 3) { consecutiveMissions = 0; if (bonusLives < 10) { bonusLives++; alert("BONUS RECUPERATO! (+10%)"); } }
+                    if (consecutiveMissions >= 3) { 
+                        consecutiveMissions = 0; 
+                        if (currentMode !== 'strategic' && bonusLives < 10) { bonusLives++; alert("BONUS RECUPERATO! (+10%)"); } 
+                        if (currentMode === 'strategic') { strategicMoves += 5; alert("BONUS MOSSE! (+5)"); document.getElementById('timer-display').innerText = strategicMoves; }
+                    }
                 } else { consecutiveMissions = 0; }
 
                 if(level >= gameStats.maxLevel) { gameStats.maxLevel = level + 1; }
                 
-                if(score > gameStats.highScore) {
-                    gameStats.highScore = score;
-                    autoSaveScore(score);
-                }
-                saveStats();
+                endGameCheck(); 
                 
                 document.getElementById('modal-content').innerHTML = `
                     <div class="modal-title">LIVELLO ${level} FINITO!</div>
@@ -926,12 +1518,82 @@
             initGame();
         }
 
+        function endGameCheck() {
+            // SALVA HIGHSCORE SOLO SE SUPERIORE AL PRECEDENTE E SE MODALITA' ARCADE
+            if(score > gameStats.highScore && currentMode === 'arcade') {
+                gameStats.highScore = score;
+                autoSaveScore(score);
+            }
+            gameStats.totalGames++;
+            saveStats();
+        }
+
         function gameOverSequence() {
-            isAnimating = true; clearInterval(timerInterval);
+            isAnimating = true; 
+            if(timerInterval) clearInterval(timerInterval);
+            if(frenzyInterval) clearInterval(frenzyInterval);
+
+            // DAILY STREAK SETTIMANALE (CICLICA)
+            let dailyMsg = "";
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000;
+            const diff = now - gameStats.lastDailyClaim;
+
+            // Premi Settimanali
+            const weeklyRewards = [
+                { coins: 10, xp: 0 },   // Day 1
+                { coins: 25, xp: 0 },   // Day 2
+                { coins: 50, xp: 0 },   // Day 3
+                { coins: 75, xp: 0 },   // Day 4
+                { coins: 100, xp: 50 }, // Day 5
+                { coins: 150, xp: 100 },// Day 6
+                { coins: 300, xp: 500 } // Day 7 (Big Prize)
+            ];
+
+            if (diff > oneDay) {
+                // E' passato almeno un giorno
+                if (diff < (oneDay * 2)) {
+                    // Giorno consecutivo
+                    gameStats.dailyStreak++;
+                } else {
+                    // Streak rotta
+                    gameStats.dailyStreak = 1;
+                }
+
+                // Ciclo settimanale (1-7)
+                if (gameStats.dailyStreak > 7) {
+                    gameStats.dailyStreak = 1;
+                }
+
+                // Ottieni ricompensa in base al giorno (indice array = giorno - 1)
+                const rewardIdx = Math.min(gameStats.dailyStreak, 7) - 1;
+                const reward = weeklyRewards[rewardIdx];
+
+                gameStats.coins += reward.coins;
+                if(reward.xp > 0) gainXP(reward.xp);
+
+                gameStats.lastDailyClaim = now;
+                saveStats();
+
+                let xpText = reward.xp > 0 ? ` + ${reward.xp} XP` : '';
+                
+                dailyMsg = `<div style="background:#2ecc71; color:white; padding:10px; border-radius:8px; margin-top:10px; border:2px solid #27ae60;">
+                    <div style="font-size:18px; font-weight:900;">🔥 STREAK: ${gameStats.dailyStreak}/7 🔥</div>
+                    <div style="font-size:12px;">Accesso giornaliero completato!</div>
+                    <div style="margin-top:5px; font-weight:bold; font-size:16px;">+${reward.coins} MONETE${xpText}</div>
+                </div>`;
+            } else if (diff < oneDay) {
+                // Già reclamato oggi
+                 dailyMsg = `<div style="background:rgba(0,0,0,0.2); color:#bdc3c7; padding:5px; border-radius:8px; margin-top:10px; font-size:11px;">
+                    Bonus giornaliero già riscosso. Torna domani!
+                </div>`;
+            }
+
             document.getElementById('modal-content').innerHTML = `
                 <div class="modal-title">GAME OVER</div>
-                <p>Bonus esaurito.</p>
+                <p>${currentMode === 'strategic' ? 'Mosse finite!' : 'Bonus esaurito / Tempo scaduto'}</p>
                 <p>Totale: ${score}</p>
+                ${dailyMsg}
                 <button class="modal-btn" onclick="location.reload()">MENU</button>
             `;
             document.getElementById('modal-overlay').classList.add('visible');
@@ -939,7 +1601,7 @@
 
         function updateUI() {
             document.getElementById('score-display').textContent = score;
-            document.getElementById('lives-display').textContent = (bonusLives * 10) + "%";
+            if(currentMode !== 'strategic') document.getElementById('lives-display').textContent = (bonusLives * 10) + "%";
             document.getElementById('level-display').textContent = level;
             document.getElementById('coin-display').textContent = gameStats.coins;
         }
